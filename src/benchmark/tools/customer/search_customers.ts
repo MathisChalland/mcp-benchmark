@@ -67,7 +67,7 @@ export const searchCustomersSchema = {
         name: z.string(),
         email: z.string(),
         address: z.string(),
-        createdAt: z.date(),
+        createdAt: z.string().describe("ISO date string"),
         orderCount: z.number(),
         totalSpent: z.number(),
       }),

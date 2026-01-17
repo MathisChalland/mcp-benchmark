@@ -18,7 +18,7 @@ export const getCustomerSchema = {
     name: z.string(),
     email: z.string(),
     address: z.string(),
-    createdAt: z.date(),
+    createdAt: z.string().describe("ISO date string"),
   },
 };
 

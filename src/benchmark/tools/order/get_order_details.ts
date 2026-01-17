@@ -8,7 +8,7 @@ export const getOrderDetailsSchema = {
   },
   outputSchema: {
     id: z.string(),
-    orderDate: z.date(),
+    orderDate: z.string().describe("ISO date string"),
     status: z.string(),
     total: z.number(),
     customer: z.object({

@@ -14,7 +14,7 @@ export const getCustomerOrdersSchema = {
       z.object({
         id: z.string(),
         customerId: z.string(),
-        orderDate: z.date(),
+        orderDate: z.string().describe("ISO date string"),
         status: z.string(),
         total: z.number(),
       }),

@@ -53,7 +53,7 @@ export const searchOrdersSchema = {
         customerId: z.string(),
         customerName: z.string(),
         customerEmail: z.string(),
-        orderDate: z.date(),
+        orderDate: z.string().describe("ISO date string"),
         status: z.string(),
         total: z.number(),
         itemCount: z.number(),

@@ -52,7 +52,7 @@ export const searchProductsSchema = {
         description: z.string(),
         price: z.number(),
         stock: z.number(),
-        createdAt: z.date(),
+        createdAt: z.string().describe("ISO date string"),
       }),
     ),
     hasMore: z.boolean(),
