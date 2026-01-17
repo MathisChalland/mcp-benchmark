@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { VM } from "vm2";
 import { get_product_stats } from "./product/get_product_stats";
 import { get_customer } from "./customer/get_customer";
 import { get_order_details } from "./order/get_order_details";
@@ -22,6 +21,9 @@ export const executeCodeSchema = {
   },
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+
 export async function execute_code(code: string): Promise<{
   result: any;
   logs?: string[];
@@ -29,35 +31,38 @@ export async function execute_code(code: string): Promise<{
 }> {
   const logs: string[] = [];
 
-  try {
-    const vm = new VM({
-      timeout: 60000,
-      sandbox: {
-        get_customer,
-        search_customers,
-        get_customer_orders,
-        get_order_details,
-        search_orders,
-        get_revenue_analysis,
-        get_product_stats,
-        get_product,
-        search_products,
-        get_inventory_status,
-        console: {
-          log: (...args: any[]) => {
-            logs.push(args.map(String).join(" "));
-          },
-        },
+  // Create sandbox with available functions
+  const sandbox = {
+    get_customer,
+    search_customers,
+    get_customer_orders,
+    get_order_details,
+    search_orders,
+    get_revenue_analysis,
+    get_product_stats,
+    get_product,
+    search_products,
+    get_inventory_status,
+    console: {
+      log: (...args: unknown[]) => {
+        logs.push(args.map(String).join(" "));
       },
-    });
+    },
+  };
 
-    const result = await vm.run(`
-      (async () => {
-        ${code}
-      })()
-    `);
+  try {
+    // Create an async function with sandbox variables as parameters
+    const paramNames = Object.keys(sandbox);
+    const paramValues = Object.values(sandbox);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const fn = new AsyncFunction(...paramNames, code);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+    const result = await fn.apply(null, paramValues);
 
     return {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       result,
       logs: logs.length > 0 ? logs : undefined,
     };

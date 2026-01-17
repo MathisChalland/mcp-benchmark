@@ -41,7 +41,6 @@
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",
     "tailwind-merge": "^3.4.0",
-    "vm2": "^3.10.2",
     "zod": "^4.3.5"
   },
   "devDependencies": {
