@@ -68,7 +68,7 @@ export async function get_order_details({
 
   return {
     id: order.id,
-    orderDate: order.orderDate,
+    orderDate: order.orderDate.toISOString(),
     status: order.status,
     total: order.total,
     customer: {

@@ -3,7 +3,7 @@ export interface Customer {
   name: string;
   email: string;
   address: string;
-  createdAt: Date;
+  createdAt: string; // ISO date string
 }
 
 export interface Product {
@@ -12,13 +12,13 @@ export interface Product {
   description: string;
   price: number; // Price in Cent
   stock: number;
-  createdAt: Date;
+  createdAt: string; // ISO date string
 }
 
 export interface Order {
   id: string;
   customerId: string;
-  orderDate: Date;
+  orderDate: string; // ISO date string
   total: number; // Total price in Cent
   status: string;
 }

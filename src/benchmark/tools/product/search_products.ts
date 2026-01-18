@@ -126,7 +126,10 @@ export async function search_products({
   });
 
   return {
-    products,
+    products: products.map((p) => ({
+      ...p,
+      createdAt: p.createdAt.toISOString(),
+    })),
     hasMore: offset + products.length < total,
   };
 }

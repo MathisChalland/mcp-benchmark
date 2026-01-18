@@ -54,7 +54,10 @@ export async function get_customer_orders({
       orderDate: "desc",
     },
   });
-  return orders;
+  return orders.map((order) => ({
+    ...order,
+    orderDate: order.orderDate.toISOString(),
+  }));
 }
 
 export const getCustomerOrdersToolDefinition = {

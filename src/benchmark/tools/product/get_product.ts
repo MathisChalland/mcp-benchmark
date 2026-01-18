@@ -42,5 +42,8 @@ export async function get_product({
     throw new Error(`Product with ID ${productId} not found`);
   }
 
-  return product;
+  return {
+    ...product,
+    createdAt: product.createdAt.toISOString(),
+  };
 }

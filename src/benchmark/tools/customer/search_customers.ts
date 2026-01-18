@@ -154,7 +154,7 @@ export async function search_customers({
     name: customer.name,
     email: customer.email,
     address: customer.address,
-    createdAt: customer.createdAt,
+    createdAt: customer.createdAt.toISOString(),
     orderCount: customer.orders.length,
     totalSpent: customer.orders.reduce((sum, order) => sum + order.total, 0),
   }));
@@ -185,7 +185,7 @@ export async function search_customers({
         comparison = a.email.localeCompare(b.email);
         break;
       case "createdAt":
-        comparison = a.createdAt.getTime() - b.createdAt.getTime();
+        comparison = a.createdAt.localeCompare(b.createdAt);
         break;
       case "orderCount":
         comparison = a.orderCount - b.orderCount;

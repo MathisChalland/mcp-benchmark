@@ -101,7 +101,7 @@ export async function search_orders({
     customerId: string;
     customerName: string;
     customerEmail: string;
-    orderDate: Date;
+    orderDate: string;
     status: string;
     total: number;
     itemCount: number;
@@ -159,7 +159,7 @@ export async function search_orders({
     customerId: order.customerId,
     customerName: order.customer.name,
     customerEmail: order.customer.email,
-    orderDate: order.orderDate,
+    orderDate: order.orderDate.toISOString(),
     status: order.status,
     total: order.total,
     itemCount: order._count.orderItems,

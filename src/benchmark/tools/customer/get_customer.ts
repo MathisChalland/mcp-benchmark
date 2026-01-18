@@ -48,5 +48,8 @@ export async function get_customer({
       `Customer with ID ${customerId} or email ${email} not found`,
     );
   }
-  return customer;
+  return {
+    ...customer,
+    createdAt: customer.createdAt.toISOString(),
+  };
 }

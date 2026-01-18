@@ -7,7 +7,7 @@ interface Customer {
   name: string;
   email: string;
   address: string;
-  createdAt: Date;
+  createdAt: string; // ISO date string
 }
 
 interface Product {
@@ -16,13 +16,13 @@ interface Product {
   description: string;
   price: number; // Price in Cent
   stock: number;
-  createdAt: Date;
+  createdAt: string; // ISO date string
 }
 
 interface Order {
   id: string;
   customerId: string;
-  orderDate: Date;
+  orderDate: string; // ISO date string
   total: number; // Total price in Cent
   status: string;
 }
@@ -91,7 +91,7 @@ declare function search_orders({ startDate, endDate, status, minTotal, maxTotal,
     customerId: string;
     customerName: string;
     customerEmail: string;
-    orderDate: Date;
+    orderDate: string;
     status: string;
     total: number;
     itemCount: number;
