@@ -5,6 +5,8 @@ import { Geist } from "next/font/google";
 
 import { ShikiProvider } from "@/contexts/ShikiContext";
 import { TRPCReactProvider } from "@/trpc/react";
+import { getSession } from "@/server/better-auth/server";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -17,9 +19,12 @@ const geist = Geist({
   variable: "--font-geist-sans",
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const session = await getSession();
+  if (!session) redirect("/login");
+
   return (
     <html lang="en" className={`${geist.variable}`}>
       <body>

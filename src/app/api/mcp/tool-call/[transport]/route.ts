@@ -38,7 +38,8 @@ import {
   search_products,
   searchProductsToolDefinition,
 } from "@/benchmark/tools/product/search_products";
-import { createMcpHandler } from "mcp-handler";
+import { createMcpHandler, withMcpAuth } from "mcp-handler";
+import { verifyMcpToken } from "../../verify-token";
 
 const handler = createMcpHandler(
   (server) => {
@@ -259,4 +260,9 @@ const handler = createMcpHandler(
   { basePath: "/api/mcp/tool-call", maxDuration: 60, verboseLogs: true },
 );
 
-export { handler as GET, handler as POST };
+const authHandler = withMcpAuth(handler, verifyMcpToken, {
+  required: true,
+  requiredScopes: ["mcp:execute"],
+});
+
+export { authHandler as GET, authHandler as POST };
