@@ -23,12 +23,12 @@ export function Configuration({
   onChange,
 }: ConfigurationProps) {
   return (
-    <Popover>
+    <Popover modal>
       <PopoverTrigger asChild>
         <Button
           size="sm"
           variant="ghost"
-          className="aria-expanded:bg-accent aria-expanded:text-accent-foreground"
+          className="aria-expanded:bg-accent aria-expanded:text-accent-foreground text-primary/85"
         >
           <Settings2 />
           Configuration
