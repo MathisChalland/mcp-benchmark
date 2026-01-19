@@ -76,7 +76,7 @@ export function useMcpClient({ serverUrl }: UseMcpClientOptions) {
         clientRef.current.close().catch(console.error);
       }
     };
-  }, [status, connect]);
+  }, []);
 
   const disconnect = useCallback(async () => {
     if (!clientRef.current) return;

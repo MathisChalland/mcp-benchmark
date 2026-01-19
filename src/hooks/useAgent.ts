@@ -4,6 +4,8 @@ import { useMetricTracker, type TaskMetrics } from "@/hooks/useMetricTracker";
 import { api } from "@/trpc/react";
 import type OpenAI from "openai";
 import type { ToolCall, ToolContent } from "@/app/api/mcp/types";
+import type { ToolCallInfo } from "@/components/benchmark/agent-flow/tool-call";
+import type { FlowNode } from "@/components/benchmark/agent-flow/flow-node";
 
 type Message = OpenAI.Chat.ChatCompletionMessageParam;
 
@@ -24,36 +26,18 @@ type AgentStatus =
   | "error";
 
 interface UseAgentOptions {
-  serverUrl: string;
+  mcpClient: ReturnType<typeof useMcpClient>;
   model?: string;
   maxIterations?: number;
   onToolCall?: (toolName: string, args: Record<string, unknown>) => void;
   onIteration?: (iteration: number, message: Message) => void;
 }
 
-type FlowNode =
-  | { type: "request"; content: string }
-  | { type: "thinking"; content: string }
-  | { type: "response"; content: string }
-  | { type: "tool-calls"; calls: ToolCallInfo[] }
-  | { type: "llm-call"; callNumber: number; isLoading: boolean };
-
-interface ToolCallInfo {
-  id: string;
-  name: string;
-  arguments: string;
-  response?: string;
-  error?: string;
-}
-
 export function useAgent({
-  serverUrl,
+  mcpClient,
   model = "gpt-5.1-2025-11-13",
   maxIterations = 15,
-  onToolCall,
-  onIteration,
 }: UseAgentOptions) {
-  const mcpClient = useMcpClient({ serverUrl });
   const metricTracker = useMetricTracker();
   const utils = api.useUtils();
 
@@ -78,6 +62,7 @@ export function useAgent({
           : "idle";
 
   const abortControllerRef = useRef<AbortController | null>(null);
+  const isRunningRef = useRef(false);
 
   const checkAborted = useCallback(() => {
     if (abortControllerRef.current?.signal.aborted) {
@@ -93,7 +78,6 @@ export function useAgent({
         string,
         unknown
       >;
-      onToolCall?.(toolCall.function.name, args);
 
       try {
         const result = await mcpClient.callTool<{ content: ToolContent[] }>(
@@ -110,7 +94,7 @@ export function useAgent({
         };
       }
     },
-    [mcpClient, metricTracker, onToolCall],
+    [mcpClient, metricTracker],
   );
 
   const executeToolCalls = useCallback(
@@ -233,6 +217,7 @@ export function useAgent({
         | { success: false; error: string },
     ): TaskResult => {
       metricTracker.stop();
+      isRunningRef.current = false;
 
       const taskResult = {
         ...outcome,
@@ -253,6 +238,16 @@ export function useAgent({
 
   const runTask = useCallback(
     async (instruction: string): Promise<TaskResult> => {
+      if (isRunningRef.current) {
+        return {
+          success: false,
+          error: "Task already running",
+          iterations: 0,
+          metrics: metricTracker.getMetrics(),
+          messages: [],
+        };
+      }
+      isRunningRef.current = true;
       setIsProcessing(true);
       setCurrentIteration(0);
       metricTracker.start();
@@ -270,7 +265,6 @@ export function useAgent({
           setCurrentIteration(iterations);
 
           const assistantMessage = await callLLM(taskMessages);
-          onIteration?.(iterations, taskMessages[taskMessages.length - 1]!);
 
           if (!assistantMessage.tool_calls?.length) {
             return finalizeTask(taskMessages, iterations, {
@@ -301,7 +295,6 @@ export function useAgent({
       executeToolCalls,
       finalizeTask,
       metricTracker,
-      onIteration,
     ],
   );
 
@@ -333,8 +326,6 @@ export function useAgent({
     reset,
     isReady,
     isProcessing: status === "processing",
-    connect: mcpClient.connect,
-    disconnect: mcpClient.disconnect,
   };
 }
 
