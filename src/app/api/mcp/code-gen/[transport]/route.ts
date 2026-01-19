@@ -14,7 +14,7 @@ const handler = createMcpHandler(
         title: "Execute Code",
         description: `Execute JavaScript code to solve the given task. The code will be wrapped in an async function an should always include a return statement with the final result.
   
-  Within the code you have acces to the following functions which can be used directly:
+  Within the code you have acces to the following functions which are already declared in scope and can be used directly:
 
   ${getToolsAPI()}
 
