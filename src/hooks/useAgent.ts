@@ -31,6 +31,21 @@ interface UseAgentOptions {
   onIteration?: (iteration: number, message: Message) => void;
 }
 
+type FlowNode =
+  | { type: "request"; content: string }
+  | { type: "thinking"; content: string }
+  | { type: "response"; content: string }
+  | { type: "tool-calls"; calls: ToolCallInfo[] }
+  | { type: "llm-call"; callNumber: number; isLoading: boolean };
+
+interface ToolCallInfo {
+  id: string;
+  name: string;
+  arguments: string;
+  response?: string;
+  error?: string;
+}
+
 export function useAgent({
   serverUrl,
   model = "gpt-5.1-2025-11-13",
@@ -38,7 +53,7 @@ export function useAgent({
   onToolCall,
   onIteration,
 }: UseAgentOptions) {
-  const mcpClient = useMcpClient({ serverUrl, autoConnect: true });
+  const mcpClient = useMcpClient({ serverUrl });
   const metricTracker = useMetricTracker();
   const utils = api.useUtils();
 
@@ -46,6 +61,7 @@ export function useAgent({
   const [currentIteration, setCurrentIteration] = useState(0);
   const [result, setResult] = useState<TaskResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [flow, setFlow] = useState<FlowNode[]>([]);
 
   const error = result?.error ?? mcpClient.error ?? null;
 
@@ -70,7 +86,9 @@ export function useAgent({
   }, []);
 
   const executeTool = useCallback(
-    async (toolCall: ToolCall): Promise<string> => {
+    async (
+      toolCall: ToolCall,
+    ): Promise<{ result: string; error?: boolean }> => {
       const args = JSON.parse(toolCall.function.arguments) as Record<
         string,
         unknown
@@ -83,10 +101,13 @@ export function useAgent({
           args,
         );
         metricTracker.recordToolCall();
-        return extractTextFromToolResult(result.content);
+        return { result: extractTextFromToolResult(result.content) };
       } catch (err) {
         const errorMsg = err instanceof Error ? err.message : String(err);
-        return `Error calling ${toolCall.function.name}: ${errorMsg}`;
+        return {
+          result: `Error calling ${toolCall.function.name}: ${errorMsg}`,
+          error: true,
+        };
       }
     },
     [mcpClient, metricTracker, onToolCall],
@@ -97,17 +118,49 @@ export function useAgent({
       toolCalls: OpenAI.Chat.ChatCompletionMessageToolCall[],
       taskMessages: Message[],
     ) => {
+      const functionCalls = toolCalls.filter((tc) => tc.type === "function");
+      setFlow((prev) => [
+        ...prev,
+        {
+          type: "tool-calls",
+          calls: functionCalls.map((tc) => ({
+            id: tc.id,
+            name: tc.function.name,
+            arguments: tc.function.arguments,
+          })),
+        },
+      ]);
       await Promise.all(
-        toolCalls.map(async (toolCall) => {
+        functionCalls.map(async (toolCall) => {
           checkAborted();
-          if (toolCall.type !== "function") return Promise.resolve();
 
-          const resultText = await executeTool(toolCall);
+          const result = await executeTool(toolCall);
           const toolMessage: Message = {
             role: "tool",
             tool_call_id: toolCall.id,
-            content: resultText,
+            content: result.result,
           };
+
+          setFlow((prev) => {
+            const toolCallsNode = prev[prev.length - 1];
+            if (toolCallsNode?.type !== "tool-calls") {
+              throw new Error("Expected tool-calls node");
+            }
+            const updatedCalls = toolCallsNode.calls.map((call) =>
+              call.id === toolCall.id
+                ? {
+                    ...call,
+                    ...(result.error
+                      ? { error: result.result }
+                      : { response: result.result }),
+                  }
+                : call,
+            );
+            return [
+              ...prev.slice(0, -1),
+              { ...toolCallsNode, calls: updatedCalls },
+            ];
+          });
 
           taskMessages.push(toolMessage);
           setMessages([...taskMessages]);
@@ -115,15 +168,30 @@ export function useAgent({
         }),
       );
     },
-    [checkAborted, executeTool],
+    [checkAborted, executeTool, setFlow],
   );
 
   const callLLM = useCallback(
     async (taskMessages: Message[]) => {
+      setFlow((prev) => [
+        ...prev,
+        {
+          type: "llm-call",
+          callNumber: prev.filter((n) => n.type === "llm-call").length + 1,
+          isLoading: true,
+        },
+      ]);
       const response = await utils.client.llm.chat.mutate({
         model,
         messages: taskMessages,
         tools: convertToOpenAITools(mcpClient.tools),
+      });
+      setFlow((prev) => {
+        const lastNode = prev[prev.length - 1];
+        if (lastNode?.type !== "llm-call") {
+          throw new Error("Expected llm-call node");
+        }
+        return [...prev.slice(0, -1), { ...lastNode, isLoading: false }];
       });
 
       metricTracker.recordLLMCall(response.usage);
@@ -138,6 +206,15 @@ export function useAgent({
         content: assistantMessage.content,
         tool_calls: assistantMessage.tool_calls,
       };
+
+      if (
+        newMessage.content &&
+        typeof newMessage.content === "string" &&
+        newMessage.content.trim()
+      ) {
+        const content = newMessage.content;
+        setFlow((prev) => [...prev, { type: "response", content }]);
+      }
 
       taskMessages.push(newMessage);
       setMessages([...taskMessages]);
@@ -237,12 +314,14 @@ export function useAgent({
     setMessages([]);
     setCurrentIteration(0);
     setResult(null);
+    setFlow([]);
     metricTracker.reset();
   }, [metricTracker]);
 
   return {
     status: status,
     messages,
+    flow,
     currentIteration,
     result,
     error: error ?? mcpClient.error,
@@ -254,6 +333,8 @@ export function useAgent({
     reset,
     isReady,
     isProcessing: status === "processing",
+    connect: mcpClient.connect,
+    disconnect: mcpClient.disconnect,
   };
 }
 

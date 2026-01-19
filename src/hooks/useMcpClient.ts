@@ -12,13 +12,9 @@ type ConnectionStatus = "idle" | "connecting" | "connected" | "error";
 
 interface UseMcpClientOptions {
   serverUrl: string;
-  autoConnect?: boolean;
 }
 
-export function useMcpClient({
-  serverUrl,
-  autoConnect = true,
-}: UseMcpClientOptions) {
+export function useMcpClient({ serverUrl }: UseMcpClientOptions) {
   const [tools, setTools] = useState<Tool[]>([]);
   const [status, setStatus] = useState<ConnectionStatus>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -75,10 +71,27 @@ export function useMcpClient({
   }, []);
 
   useEffect(() => {
-    if (autoConnect && status === "idle") {
-      connect();
+    return () => {
+      if (clientRef.current) {
+        clientRef.current.close().catch(console.error);
+      }
+    };
+  }, [status, connect]);
+
+  const disconnect = useCallback(async () => {
+    if (!clientRef.current) return;
+
+    try {
+      await clientRef.current.close();
+    } catch (err) {
+      console.error("Error during disconnect:", err);
+    } finally {
+      clientRef.current = null;
+      setTools([]);
+      setStatus("idle");
+      setError(null);
     }
-  }, [autoConnect, status, connect]);
+  }, []);
 
   return {
     tools,
@@ -88,5 +101,6 @@ export function useMcpClient({
     connect,
     callTool,
     refreshTools,
+    disconnect,
   };
 }
