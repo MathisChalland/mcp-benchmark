@@ -46,7 +46,7 @@ export function RunTestcase({ setup, onNewSetup }: Props) {
           </div>
         ) : (
           <div className="container mx-auto">
-            <div className="mt-3 grid w-full grid-cols-2 pb-40">
+            <div className="mt-3 grid w-full grid-cols-2 items-start pb-40">
               {AGENTS.map(({ key, name }) => (
                 <AgentColumn
                   key={key}
@@ -81,10 +81,10 @@ function AgentColumn({
   onComplete: (metrics: TaskMetrics) => void;
 }) {
   return (
-    <div className="flex flex-col gap-6">
+    <div className="sticky top-0 flex flex-col gap-8">
       <Agent mcpClient={mcpClient} setup={setup} onComplete={onComplete} />
       {metrics && metrics.llmCalls > 1 && (
-        <div className="flex flex-col gap-6 px-6">
+        <div className="flex flex-col gap-8 px-6">
           <div className="border-border border-t" />
           <MetricOverview metrics={metrics} serverName={serverName} />
         </div>
