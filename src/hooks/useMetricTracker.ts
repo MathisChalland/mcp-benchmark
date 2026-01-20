@@ -27,51 +27,59 @@ const initialMetrics: TaskMetrics = {
 export function useMetricTracker() {
   const [metrics, setMetrics] = useState<TaskMetrics>(initialMetrics);
   const startTimeRef = useRef<number>(0);
+  const metricsRef = useRef<TaskMetrics>(initialMetrics);
 
   const start = useCallback(() => {
     startTimeRef.current = Date.now();
+    metricsRef.current = initialMetrics;
     setMetrics(initialMetrics);
   }, []);
 
   const reset = useCallback(() => {
     startTimeRef.current = 0;
+    metricsRef.current = initialMetrics;
     setMetrics(initialMetrics);
   }, []);
 
   const recordLLMCall = useCallback((usage?: LLMUsage) => {
-    setMetrics((prev) => ({
-      ...prev,
-      llmCalls: prev.llmCalls + 1,
-      totalTokens: prev.totalTokens + (usage?.total_tokens ?? 0),
-      promptTokens: prev.promptTokens + (usage?.prompt_tokens ?? 0),
-      completionTokens: prev.completionTokens + (usage?.completion_tokens ?? 0),
-    }));
+    metricsRef.current = {
+      ...metricsRef.current,
+      llmCalls: metricsRef.current.llmCalls + 1,
+      totalTokens: metricsRef.current.totalTokens + (usage?.total_tokens ?? 0),
+      promptTokens:
+        metricsRef.current.promptTokens + (usage?.prompt_tokens ?? 0),
+      completionTokens:
+        metricsRef.current.completionTokens + (usage?.completion_tokens ?? 0),
+    };
+    setMetrics(metricsRef.current);
   }, []);
 
   const recordToolCall = useCallback(() => {
-    setMetrics((prev) => ({
-      ...prev,
-      toolCalls: prev.toolCalls + 1,
-    }));
+    metricsRef.current = {
+      ...metricsRef.current,
+      toolCalls: metricsRef.current.toolCalls + 1,
+    };
+    setMetrics(metricsRef.current);
   }, []);
 
   const stop = useCallback(() => {
     const duration = Date.now() - startTimeRef.current;
-    setMetrics((prev) => ({
-      ...prev,
+    metricsRef.current = {
+      ...metricsRef.current,
       durationMs: duration,
-    }));
+    };
+    setMetrics(metricsRef.current);
     return duration;
   }, []);
 
   const getMetrics = useCallback((): TaskMetrics => {
     return {
-      ...metrics,
+      ...metricsRef.current,
       durationMs: startTimeRef.current
         ? Date.now() - startTimeRef.current
-        : metrics.durationMs,
+        : metricsRef.current.durationMs,
     };
-  }, [metrics]);
+  }, []);
 
   return {
     metrics,
