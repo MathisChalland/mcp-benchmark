@@ -1,12 +1,15 @@
-import { useMcpClient } from "@/hooks/useMcpClient";
 import type { TestSetupResult } from "./setup/useTestSetup";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FlowNode } from "./agent-flow/flow-node";
 import { Agent } from "./agent";
 import { Bot, Loader2 } from "lucide-react";
 import { Button } from "../ui/button";
 import { MetricOverview } from "./metric-overview";
 import type { TaskMetrics } from "@/hooks/useMetricTracker";
+import {
+  useMcpClients,
+  type McpClientType,
+} from "@/contexts/useMcpClientContext";
 
 interface Props {
   setup: TestSetupResult;
@@ -14,23 +17,13 @@ interface Props {
 }
 
 const AGENTS = [
-  { key: "toolCall", serverUrl: "/api/mcp/tool-call/mcp", name: "Tool Call" },
-  { key: "codeGen", serverUrl: "/api/mcp/code-gen/mcp", name: "Code Gen" },
+  { key: "toolCall", name: "Tool Call" },
+  { key: "codeGen", name: "Code Gen" },
 ] as const;
 
 export function RunTestcase({ setup, onNewSetup }: Props) {
-  const toolCallMcp = useMcpClient({ serverUrl: "/api/mcp/tool-call/mcp" });
-  const codeGenMcp = useMcpClient({ serverUrl: "/api/mcp/code-gen/mcp" });
+  const mcpClients = useMcpClients();
   const [metrics, setMetrics] = useState<Record<string, TaskMetrics>>({});
-
-  const mcpClients = { toolCall: toolCallMcp, codeGen: codeGenMcp };
-  const isConnected = Object.values(mcpClients).every(
-    (client) => client.status === "connected",
-  );
-
-  useEffect(() => {
-    void Promise.all([toolCallMcp.connect(), codeGenMcp.connect()]);
-  }, [toolCallMcp, codeGenMcp]);
 
   return (
     <div className="bg-muted max-h-dvh w-full">
@@ -39,7 +32,7 @@ export function RunTestcase({ setup, onNewSetup }: Props) {
         <div className="mx-auto max-w-4xl px-6 pt-8">
           <FlowNode node={{ type: "request", content: setup.prompt }} />
         </div>
-        {!isConnected ? (
+        {!mcpClients.isConnected ? (
           <div className="mx-auto mt-5 flex w-fit gap-5">
             <Loader2 className="size-4 animate-spin" /> Connecting to MCP
             servers...
@@ -74,7 +67,7 @@ function AgentColumn({
   metrics,
   onComplete,
 }: {
-  mcpClient: ReturnType<typeof useMcpClient>;
+  mcpClient: McpClientType;
   setup: TestSetupResult;
   serverName: string;
   metrics?: TaskMetrics;

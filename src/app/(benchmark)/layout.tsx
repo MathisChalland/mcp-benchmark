@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Geist } from "next/font/google";
 
 import { ShikiProvider } from "@/contexts/ShikiContext";
+import { McpClientProvider } from "@/contexts/useMcpClientContext";
 import { TRPCReactProvider } from "@/trpc/react";
 import { getSession } from "@/server/better-auth/server";
 import { redirect } from "next/navigation";
@@ -29,7 +30,9 @@ export default async function RootLayout({
     <html lang="en" className={`${geist.variable}`}>
       <body>
         <TRPCReactProvider>
-          <ShikiProvider>{children}</ShikiProvider>
+          <ShikiProvider>
+            <McpClientProvider>{children}</McpClientProvider>
+          </ShikiProvider>
         </TRPCReactProvider>
       </body>
     </html>
