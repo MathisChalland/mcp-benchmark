@@ -6,6 +6,7 @@ import { Configuration } from "./configuration";
 import { cn } from "@/lib/utils";
 import { tests } from "@/benchmark/test-cases";
 import { useTestSetup, type TestSetupResult } from "./useTestSetup";
+import { toast } from "sonner";
 
 interface SetupBarProps {
   setup: ReturnType<typeof useTestSetup>;
@@ -37,6 +38,11 @@ export function SetupBar({ setup, onSubmit }: SetupBarProps) {
   }, [prompt]);
 
   const handleSubmit = () => {
+    const atLeastOneAgent = Object.values(config.mcpServer).some((v) => v);
+    if (!atLeastOneAgent) {
+      toast.error("Please select at least one MCP server to run the test.");
+      return;
+    }
     if (canSubmit) {
       onSubmit(getResult());
     }
@@ -92,7 +98,7 @@ export function SetupBar({ setup, onSubmit }: SetupBarProps) {
             <Configuration
               model={config.model}
               thinking={config.thinking}
-              mcpServerUrl={config.mcpServerUrl}
+              mcpServer={config.mcpServer}
               onChange={updateConfig}
             />
             <Button

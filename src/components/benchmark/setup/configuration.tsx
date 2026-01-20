@@ -8,18 +8,20 @@ import { ToggleOption } from "./toggle-option";
 import { Button } from "@/components/ui/button";
 import { Settings2 } from "lucide-react";
 import type { TestSetupConfig } from "./useTestSetup";
+import { Separator } from "@/components/ui/separator";
+import { MCP_SERVERS } from "@/contexts/useMcpClientContext";
 
 interface ConfigurationProps {
   model: string;
   thinking: boolean;
-  mcpServerUrl: string;
+  mcpServer: Record<keyof typeof MCP_SERVERS, boolean>;
   onChange: (updates: Partial<TestSetupConfig>) => void;
 }
 
 export function Configuration({
   model,
   thinking,
-  mcpServerUrl,
+  mcpServer,
   onChange,
 }: ConfigurationProps) {
   return (
@@ -57,16 +59,23 @@ export function Configuration({
             onToggle={(value) => onChange({ thinking: value })}
           />
 
-          <SelectOption
-            label="MCP Server"
-            options={[
-              { value: "/api/mcp/tool-call/mcp", label: "Tool Call MCP" },
-              { value: "/api/mcp/code-gen/mcp", label: "Code Gen MCP" },
-            ]}
-            selectedValue={mcpServerUrl}
-            onChange={(value) => onChange({ mcpServerUrl: value })}
-            side="right"
-          />
+          <Separator />
+
+          {Object.entries(MCP_SERVERS).map(([key, server]) => (
+            <ToggleOption
+              key={key}
+              label={server.name}
+              isEnabled={mcpServer[key as keyof typeof MCP_SERVERS]}
+              onToggle={(enabled) =>
+                onChange({
+                  mcpServer: {
+                    ...mcpServer,
+                    [key]: enabled,
+                  },
+                })
+              }
+            />
+          ))}
         </div>
       </PopoverContent>
     </Popover>

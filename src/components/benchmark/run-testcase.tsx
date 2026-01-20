@@ -7,6 +7,7 @@ import { Button } from "../ui/button";
 import { MetricOverview } from "./metric-overview";
 import type { TaskMetrics } from "@/hooks/useMetricTracker";
 import {
+  MCP_SERVERS,
   useMcpClients,
   type McpClientType,
 } from "@/contexts/useMcpClientContext";
@@ -16,14 +17,16 @@ interface Props {
   onNewSetup?: (run?: TestSetupResult) => void;
 }
 
-const AGENTS = [
-  { key: "toolCall", name: "Tool Call" },
-  { key: "codeGen", name: "Code Gen" },
-] as const;
-
 export function RunTestcase({ setup, onNewSetup }: Props) {
   const mcpClients = useMcpClients();
   const [metrics, setMetrics] = useState<Record<string, TaskMetrics>>({});
+
+  const AGENTS = Object.entries(setup.config.mcpServer)
+    .filter(([, enabled]) => enabled)
+    .map(([k]) => {
+      const key = k as keyof typeof MCP_SERVERS;
+      return { key: key, name: MCP_SERVERS[key].name };
+    });
 
   const isFinished = AGENTS.every(({ key }) => metrics[key]?.finished);
   const onBack = () => onNewSetup?.(undefined);
@@ -43,13 +46,18 @@ export function RunTestcase({ setup, onNewSetup }: Props) {
           </div>
         ) : (
           <div className="container mx-auto">
-            <div className="mt-3 grid w-full grid-cols-2 items-start">
+            <div
+              className="mt-3 grid w-full items-start"
+              style={{
+                gridTemplateColumns: `repeat(${AGENTS.length}, minmax(0, 1fr))`,
+              }}
+            >
               {AGENTS.map(({ key, name }) => (
                 <AgentColumn
                   key={key}
                   mcpClient={mcpClients[key]}
                   setup={setup}
-                  serverName={name}
+                  serverName={MCP_SERVERS[key].name}
                   metrics={metrics[key]}
                   onComplete={(m) =>
                     setMetrics((prev) => ({ ...prev, [key]: m }))
@@ -78,13 +86,12 @@ function AgentColumn({
   onComplete: (metrics: TaskMetrics) => void;
 }) {
   return (
-    <div className="sticky top-0 flex flex-col gap-8">
+    <div className="sticky top-0 mx-auto flex w-full max-w-4xl flex-col gap-8 px-6">
       <Agent mcpClient={mcpClient} setup={setup} onComplete={onComplete} />
       {metrics && metrics.finished && (
-        <div className="flex flex-col gap-8 px-6">
+          <>
           <div className="border-border border-t" />
-          <MetricOverview metrics={metrics} serverName={serverName} />
-        </div>
+          <MetricOverview metrics={metrics} serverName={serverName} /></>
       )}
     </div>
   );

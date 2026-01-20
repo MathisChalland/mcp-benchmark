@@ -3,9 +3,9 @@
 import { createContext, useContext, useEffect, type ReactNode } from "react";
 import { useMcpClient } from "@/hooks/useMcpClient";
 
-const SERVERS = {
-  toolCall: "/api/mcp/tool-call/mcp",
-  codeGen: "/api/mcp/code-gen/mcp",
+export const MCP_SERVERS = {
+  toolCall: { url: "/api/mcp/tool-call/mcp", name: "Tool Calling" },
+  codeGen: { url: "/api/mcp/code-gen/mcp", name: "Code Generation" },
 } as const;
 
 export type McpClientType = ReturnType<typeof useMcpClient>;
@@ -20,8 +20,8 @@ interface McpClientContextValue {
 const McpClientContext = createContext<McpClientContextValue | null>(null);
 
 export function McpClientProvider({ children }: { children: ReactNode }) {
-  const toolCall = useMcpClient({ serverUrl: SERVERS.toolCall });
-  const codeGen = useMcpClient({ serverUrl: SERVERS.codeGen });
+  const toolCall = useMcpClient({ serverUrl: MCP_SERVERS.toolCall.url });
+  const codeGen = useMcpClient({ serverUrl: MCP_SERVERS.codeGen.url });
 
   const isConnected =
     toolCall.status === "connected" && codeGen.status === "connected";

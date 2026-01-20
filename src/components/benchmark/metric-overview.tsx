@@ -22,7 +22,7 @@ export function MetricOverview({ metrics, serverName }: MetricOverviewProps) {
   };
 
   return (
-    <div className="border-border bg-background overflow-hidden rounded-xl border">
+    <div className="border-border bg-background mx-auto w-full max-w-4xl overflow-hidden rounded-xl border">
       <div className="bg-muted flex items-center gap-2 border-b border-inherit px-4 py-2">
         <Zap className="text-muted-foreground size-4" />
         <span className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">

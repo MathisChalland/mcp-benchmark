@@ -24,7 +24,7 @@ export function Agent({ mcpClient, setup, onComplete }: Props) {
   }, [agent.isReady]);
 
   return (
-    <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 px-6">
+    <div className="flex w-full flex-col gap-4">
       {agent.flow.map((node, index) => (
         <FlowNode key={index} node={node} />
       ))}

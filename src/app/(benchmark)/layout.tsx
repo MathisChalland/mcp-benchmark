@@ -8,6 +8,7 @@ import { McpClientProvider } from "@/contexts/useMcpClientContext";
 import { TRPCReactProvider } from "@/trpc/react";
 import { getSession } from "@/server/better-auth/server";
 import { redirect } from "next/navigation";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   title: "Create T3 App",
@@ -31,7 +32,10 @@ export default async function RootLayout({
       <body>
         <TRPCReactProvider>
           <ShikiProvider>
-            <McpClientProvider>{children}</McpClientProvider>
+            <McpClientProvider>
+              {children}
+              <Toaster />
+            </McpClientProvider>
           </ShikiProvider>
         </TRPCReactProvider>
       </body>
