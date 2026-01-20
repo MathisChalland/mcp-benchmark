@@ -1,10 +1,15 @@
+"use client";
 import { useState, useMemo, useCallback } from "react";
 import { tests } from "@/benchmark/test-cases";
 import { MCP_SERVERS } from "@/contexts/useMcpClientContext";
+import type {
+  Effort,
+  LLMModelKey,
+} from "@/components/benchmark/setup/llm-models";
 
 export interface TestSetupConfig {
-  model: string;
-  thinking: boolean;
+  model: LLMModelKey;
+  reasoning: Effort;
   mcpServer: Record<keyof typeof MCP_SERVERS, boolean>;
 }
 
@@ -16,8 +21,8 @@ export interface TestSetupResult {
 }
 
 const defaultConfig: TestSetupConfig = {
-  model: "gpt-5.1-2025-11-13",
-  thinking: false,
+  model: "openai/gpt-5-mini",
+  reasoning: "minimal",
   mcpServer: {
     toolCall: true,
     codeGen: true,

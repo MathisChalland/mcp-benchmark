@@ -12,7 +12,11 @@ interface Props {
 }
 
 export function Agent({ mcpClient, setup, onComplete }: Props) {
-  const agent = useAgent({ mcpClient });
+  const agent = useAgent({
+    mcpClient,
+    reasoning: setup.config.reasoning,
+    model: setup.config.model,
+  });
 
   // Auto-start the test when component mounts
   useEffect(() => {

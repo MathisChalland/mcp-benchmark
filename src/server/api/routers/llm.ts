@@ -1,26 +1,35 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "@/server/api/trpc";
-import OpenAI from "openai";
+import { OpenRouter } from "@openrouter/sdk";
+import { env } from "@/env";
+import {
+  LLM_MODELS,
+  type LLMModelKey,
+  effort,
+} from "@/components/benchmark/setup/llm-models";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+const openRouter = new OpenRouter({
+  apiKey: env.OPENROUTER_API_KEY,
 });
 
 export const llmRouter = createTRPCRouter({
   chat: protectedProcedure
     .input(
       z.object({
-        model: z.string(),
+        model: z.enum([...(Object.keys(LLM_MODELS) as LLMModelKey[])]),
+        reasoning: effort,
         messages: z.array(z.any()),
         tools: z.array(z.any()).optional(),
       }),
     )
     .mutation(async ({ input }) => {
-      const response = await openai.chat.completions.create({
+      const response = await openRouter.chat.send({
         model: input.model,
         messages: input.messages,
         tools: input.tools,
-        tool_choice: "auto",
+        reasoning: {
+          effort: input.reasoning,
+        },
       });
 
       return response;

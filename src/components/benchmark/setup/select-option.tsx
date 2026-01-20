@@ -1,8 +1,12 @@
+import * as React from "react";
 import { Label } from "@/components/ui/label";
 import {
   Select as UISelect,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
+  SelectSeparator,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -14,9 +18,15 @@ export type SelectOptionType<T extends string> = {
   customDisplay?: React.ReactNode;
 };
 
+export type GroupedSelectOptionType<T extends string> = {
+  groupLabel: string;
+  options: SelectOptionType<T>[];
+};
+
 interface SelectOptionProps<T extends string> {
   label: string;
-  options: SelectOptionType<T>[];
+  options?: SelectOptionType<T>[];
+  groupedOptions?: GroupedSelectOptionType<T>[];
   selectedValue: string;
   onChange: (value: T) => void;
   placeholder?: string;
@@ -27,6 +37,7 @@ interface SelectOptionProps<T extends string> {
 export function SelectOption<T extends string>({
   label,
   options,
+  groupedOptions,
   selectedValue,
   onChange,
   placeholder,
@@ -41,6 +52,7 @@ export function SelectOption<T extends string>({
       <Select
         selectedValue={selectedValue}
         options={options}
+        groupedOptions={groupedOptions}
         onChange={onChange}
         className="ml-auto"
         side={side}
@@ -54,6 +66,7 @@ export function SelectOption<T extends string>({
 export function Select<T extends string>({
   selectedValue,
   options,
+  groupedOptions,
   onChange,
   className,
   placeholder,
@@ -74,11 +87,25 @@ export function Select<T extends string>({
         <SelectValue placeholder={placeholder ?? "Select option"} />
       </SelectTrigger>
       <SelectContent align={align} side={side}>
-        {options.map((option) => (
-          <SelectItem key={option.value} value={option.value}>
-            {option.customDisplay ?? option.label}
-          </SelectItem>
-        ))}
+        {groupedOptions
+          ? groupedOptions.map((group, groupIndex) => (
+              <React.Fragment key={group.groupLabel}>
+                {groupIndex > 0 && <SelectSeparator />}
+                <SelectGroup>
+                  <SelectLabel>{group.groupLabel}</SelectLabel>
+                  {group.options.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.customDisplay ?? option.label}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </React.Fragment>
+            ))
+          : options?.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.customDisplay ?? option.label}
+              </SelectItem>
+            ))}
       </SelectContent>
     </UISelect>
   );

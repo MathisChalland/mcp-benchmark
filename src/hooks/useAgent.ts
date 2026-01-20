@@ -2,12 +2,17 @@ import { useCallback, useRef, useState } from "react";
 import { useMcpClient, type Tool } from "@/hooks/useMcpClient";
 import { useMetricTracker, type TaskMetrics } from "@/hooks/useMetricTracker";
 import { api } from "@/trpc/react";
-import type OpenAI from "openai";
 import type { ToolCall, ToolContent } from "@/app/api/mcp/types";
-import type { ToolCallInfo } from "@/components/benchmark/agent-flow/tool-call";
 import type { FlowNode } from "@/components/benchmark/agent-flow/flow-node";
-
-type Message = OpenAI.Chat.ChatCompletionMessageParam;
+import type {
+  Message,
+  ChatMessageToolCall,
+  ToolDefinitionJson,
+} from "@openrouter/sdk/models";
+import type {
+  Effort,
+  LLMModelKey,
+} from "@/components/benchmark/setup/llm-models";
 
 interface TaskResult {
   success: boolean;
@@ -27,7 +32,8 @@ type AgentStatus =
 
 interface UseAgentOptions {
   mcpClient: ReturnType<typeof useMcpClient>;
-  model?: string;
+  model?: LLMModelKey;
+  reasoning?: Effort;
   maxIterations?: number;
   onToolCall?: (toolName: string, args: Record<string, unknown>) => void;
   onIteration?: (iteration: number, message: Message) => void;
@@ -35,7 +41,8 @@ interface UseAgentOptions {
 
 export function useAgent({
   mcpClient,
-  model = "gpt-5.1-2025-11-13",
+  model = "openai/gpt-5-mini",
+  reasoning = "minimal",
   maxIterations = 15,
 }: UseAgentOptions) {
   const metricTracker = useMetricTracker();
@@ -98,10 +105,7 @@ export function useAgent({
   );
 
   const executeToolCalls = useCallback(
-    async (
-      toolCalls: OpenAI.Chat.ChatCompletionMessageToolCall[],
-      taskMessages: Message[],
-    ) => {
+    async (toolCalls: ChatMessageToolCall[], taskMessages: Message[]) => {
       const functionCalls = toolCalls.filter((tc) => tc.type === "function");
       setFlow((prev) => [
         ...prev,
@@ -121,7 +125,7 @@ export function useAgent({
           const result = await executeTool(toolCall);
           const toolMessage: Message = {
             role: "tool",
-            tool_call_id: toolCall.id,
+            toolCallId: toolCall.id,
             content: result.result,
           };
 
@@ -167,6 +171,7 @@ export function useAgent({
       ]);
       const response = await utils.client.llm.chat.mutate({
         model,
+        reasoning,
         messages: taskMessages,
         tools: convertToOpenAITools(mcpClient.tools),
       });
@@ -188,7 +193,10 @@ export function useAgent({
       const newMessage: Message = {
         role: "assistant",
         content: assistantMessage.content,
-        tool_calls: assistantMessage.tool_calls,
+        toolCalls: assistantMessage.toolCalls,
+        ...(assistantMessage.reasoningDetails && {
+          reasoningDetails: assistantMessage.reasoningDetails,
+        }),
       };
 
       if (
@@ -266,14 +274,18 @@ export function useAgent({
 
           const assistantMessage = await callLLM(taskMessages);
 
-          if (!assistantMessage.tool_calls?.length) {
+          if (!assistantMessage.toolCalls?.length) {
+            const answer =
+              typeof assistantMessage.content === "string"
+                ? assistantMessage.content
+                : null;
             return finalizeTask(taskMessages, iterations, {
               success: true,
-              answer: assistantMessage.content,
+              answer,
             });
           }
 
-          await executeToolCalls(assistantMessage.tool_calls, taskMessages);
+          await executeToolCalls(assistantMessage.toolCalls, taskMessages);
         }
 
         return finalizeTask(taskMessages, iterations, {
@@ -329,7 +341,7 @@ export function useAgent({
   };
 }
 
-function convertToOpenAITools(tools: Tool[]): OpenAI.Chat.ChatCompletionTool[] {
+function convertToOpenAITools(tools: Tool[]): ToolDefinitionJson[] {
   return tools.map((tool) => ({
     type: "function" as const,
     function: {

@@ -3,24 +3,30 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { SelectOption } from "./select-option";
+import { SelectOption, type GroupedSelectOptionType } from "./select-option";
 import { ToggleOption } from "./toggle-option";
 import { Button } from "@/components/ui/button";
 import { Settings2 } from "lucide-react";
-import type { TestSetupConfig } from "./useTestSetup";
+import { type TestSetupConfig } from "./useTestSetup";
 import { Separator } from "@/components/ui/separator";
 import { MCP_SERVERS } from "@/contexts/useMcpClientContext";
+import {
+  effort,
+  LLM_MODELS,
+  type Effort,
+  type LLMModelKey,
+} from "@/components/benchmark/setup/llm-models";
 
 interface ConfigurationProps {
   model: string;
-  thinking: boolean;
+  reasoning: Effort;
   mcpServer: Record<keyof typeof MCP_SERVERS, boolean>;
   onChange: (updates: Partial<TestSetupConfig>) => void;
 }
 
 export function Configuration({
   model,
-  thinking,
+  reasoning,
   mcpServer,
   onChange,
 }: ConfigurationProps) {
@@ -43,20 +49,21 @@ export function Configuration({
         <div className="flex w-full flex-col gap-2">
           <SelectOption
             label="Model"
-            options={[
-              { value: "gpt-5.1-2025-11-13", label: "GPT-5.1" },
-              { value: "gpt-4o-mini", label: "GPT-4o Mini" },
-              { value: "claude-sonnet-4-20250514", label: "Claude Sonnet 4" },
-            ]}
+            groupedOptions={getGroupedModelOptions()}
             selectedValue={model}
             onChange={(value) => onChange({ model: value })}
             side="right"
           />
 
-          <ToggleOption
-            label="Use thinking"
-            isEnabled={thinking}
-            onToggle={(value) => onChange({ thinking: value })}
+          <SelectOption
+            label="Reasoning effort"
+            options={effort.options.map((e) => ({
+              value: e,
+              label: e.charAt(0).toUpperCase() + e.slice(1),
+            }))}
+            selectedValue={reasoning}
+            onChange={(value) => onChange({ reasoning: value })}
+            side="right"
           />
 
           <Separator />
@@ -80,4 +87,22 @@ export function Configuration({
       </PopoverContent>
     </Popover>
   );
+}
+
+export function getGroupedModelOptions(): GroupedSelectOptionType<LLMModelKey>[] {
+  const providers = [
+    { key: "anthropic", label: "Anthropic" },
+    { key: "openai", label: "OpenAI" },
+    { key: "google", label: "Google" },
+  ];
+
+  return providers.map(({ key, label }) => ({
+    groupLabel: label,
+    options: Object.entries(LLM_MODELS)
+      .filter(([modelKey]) => modelKey.startsWith(`${key}/`))
+      .map(([modelKey, model]) => ({
+        value: modelKey as LLMModelKey,
+        label: model.name,
+      })),
+  }));
 }

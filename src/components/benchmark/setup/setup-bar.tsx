@@ -97,7 +97,7 @@ export function SetupBar({ setup, onSubmit }: SetupBarProps) {
           <div className="ml-auto flex gap-3">
             <Configuration
               model={config.model}
-              thinking={config.thinking}
+              reasoning={config.reasoning}
               mcpServer={config.mcpServer}
               onChange={updateConfig}
             />
