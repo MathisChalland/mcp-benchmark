@@ -7,6 +7,7 @@ export interface TaskMetrics {
   llmCalls: number;
   toolCalls: number;
   durationMs: number;
+  finished: boolean;
 }
 
 interface LLMUsage {
@@ -22,6 +23,7 @@ const initialMetrics: TaskMetrics = {
   llmCalls: 0,
   toolCalls: 0,
   durationMs: 0,
+  finished: false,
 };
 
 export function useMetricTracker() {
@@ -67,6 +69,7 @@ export function useMetricTracker() {
     metricsRef.current = {
       ...metricsRef.current,
       durationMs: duration,
+      finished: true,
     };
     setMetrics(metricsRef.current);
     return duration;

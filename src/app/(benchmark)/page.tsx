@@ -6,11 +6,21 @@ import {
   type TestSetupResult,
 } from "@/components/benchmark/setup/useTestSetup";
 import { Bot } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 export default function Benchmark() {
   const setup = useTestSetup();
   const [run, setRun] = useState<TestSetupResult>();
+  const [runKey, setRunKey] = useState(0);
+
+  const handleNewSetup = useCallback((rerun?: TestSetupResult) => {
+    if (rerun) {
+      setRunKey((k) => k + 1);
+    } else {
+      setRun(undefined);
+    }
+  }, []);
+
   return (
     <div className="bg-muted flex min-h-dvh w-full flex-col overscroll-none">
       {!run ? (
@@ -25,7 +35,7 @@ export default function Benchmark() {
           <SetupBar setup={setup} onSubmit={(conf) => setRun(conf)} />
         </div>
       ) : (
-        <RunTestcase setup={run} onNewSetup={() => setRun(undefined)} />
+        <RunTestcase key={runKey} setup={run} onNewSetup={handleNewSetup} />
       )}
     </div>
   );
