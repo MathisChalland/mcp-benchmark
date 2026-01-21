@@ -55,7 +55,7 @@ export function Configuration({
             side="right"
           />
 
-          <SelectOption
+          {/* <SelectOption
             label="Reasoning effort"
             options={effort.options.map((e) => ({
               value: e,
@@ -64,7 +64,7 @@ export function Configuration({
             selectedValue={reasoning}
             onChange={(value) => onChange({ reasoning: value })}
             side="right"
-          />
+          /> */}
 
           <Separator />
 

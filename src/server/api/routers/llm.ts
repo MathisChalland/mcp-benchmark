@@ -17,7 +17,7 @@ export const llmRouter = createTRPCRouter({
     .input(
       z.object({
         model: z.enum([...(Object.keys(LLM_MODELS) as LLMModelKey[])]),
-        reasoning: effort,
+        //  reasoning: effort,
         messages: z.array(z.any()),
         tools: z.array(z.any()).optional(),
       }),
@@ -29,9 +29,9 @@ export const llmRouter = createTRPCRouter({
         messages: input.messages,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         tools: input.tools,
-        reasoning: {
-          effort: input.reasoning,
-        },
+        // reasoning: {
+        //   effort: input.reasoning,
+        // },
       });
 
       return response;

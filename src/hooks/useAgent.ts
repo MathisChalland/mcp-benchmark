@@ -171,7 +171,7 @@ export function useAgent({
       ]);
       const response = await utils.client.llm.chat.mutate({
         model,
-        reasoning,
+        //reasoning,
         messages: taskMessages,
         tools: convertToOpenAITools(mcpClient.tools),
       });
