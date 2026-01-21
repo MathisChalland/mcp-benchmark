@@ -60,20 +60,20 @@ export const searchCustomersSchema = {
       .default(0)
       .describe("Number of customers to skip for pagination"),
   },
-  outputSchema: {
-    customers: z.array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        email: z.string(),
-        address: z.string(),
-        createdAt: z.string().describe("ISO date string"),
-        orderCount: z.number(),
-        totalSpent: z.number(),
-      }),
-    ),
-    hasMore: z.boolean(),
-  },
+  // outputSchema: {
+  //   customers: z.array(
+  //     z.object({
+  //       id: z.string(),
+  //       name: z.string(),
+  //       email: z.string(),
+  //       address: z.string(),
+  //       createdAt: z.string().describe("ISO date string"),
+  //       orderCount: z.number(),
+  //       totalSpent: z.number(),
+  //     }),
+  //   ),
+  //   hasMore: z.boolean(),
+  // },
 };
 
 export const searchCustomersToolDefinition = {

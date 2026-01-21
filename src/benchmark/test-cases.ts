@@ -1,7 +1,7 @@
 export interface TestCase {
   id: string;
   instruction: string;
-  expectedResult?: any;
+  //expectedResult?: any;
 }
 
 export const tests: TestCase[] = [

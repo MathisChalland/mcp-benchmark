@@ -50,7 +50,6 @@ const handler = createMcpHandler(
         const customer = await get_customer({ customerId, email });
         return {
           content: [{ type: "text", text: JSON.stringify(customer) }],
-          structuredContent: customer as any,
         };
       },
     );
@@ -61,7 +60,6 @@ const handler = createMcpHandler(
         const output = await search_customers(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
-          structuredContent: output,
         };
       },
     );
@@ -73,7 +71,6 @@ const handler = createMcpHandler(
         const output = await get_customer_orders(props);
         return {
           content: [{ type: "text", text: JSON.stringify({ orders: output }) }],
-          structuredContent: { orders: output },
         };
       },
     );
@@ -85,7 +82,6 @@ const handler = createMcpHandler(
         const output = await get_order_details(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
-          structuredContent: output,
         };
       },
     );
@@ -97,7 +93,6 @@ const handler = createMcpHandler(
         const output = await search_orders(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
-          structuredContent: output,
         };
       },
     );
@@ -109,7 +104,6 @@ const handler = createMcpHandler(
         const output = await get_revenue_analysis(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
-          structuredContent: output,
         };
       },
     );
@@ -121,7 +115,6 @@ const handler = createMcpHandler(
         const output = await get_product(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
-          structuredContent: output as any,
         };
       },
     );
@@ -135,7 +128,6 @@ const handler = createMcpHandler(
           content: [
             { type: "text", text: JSON.stringify({ products: output }) },
           ],
-          structuredContent: { products: output },
         };
       },
     );
@@ -147,7 +139,6 @@ const handler = createMcpHandler(
         const output = await search_products(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
-          structuredContent: output,
         };
       },
     );
@@ -159,7 +150,6 @@ const handler = createMcpHandler(
         const output = await get_inventory_status(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
-          structuredContent: output,
         };
       },
     );

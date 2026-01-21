@@ -9,17 +9,17 @@ export const getCustomerOrdersSchema = {
     endDate: z.string().optional().describe("End date filter"),
     status: z.string().optional().describe("Filter by order status"),
   },
-  outputSchema: {
-    orders: z.array(
-      z.object({
-        id: z.string(),
-        customerId: z.string(),
-        orderDate: z.string().describe("ISO date string"),
-        status: z.string(),
-        total: z.number(),
-      }),
-    ),
-  },
+  // outputSchema: {
+  //   orders: z.array(
+  //     z.object({
+  //       id: z.string(),
+  //       customerId: z.string(),
+  //       orderDate: z.string().describe("ISO date string"),
+  //       status: z.string(),
+  //       total: z.number(),
+  //     }),
+  //   ),
+  // },
 };
 
 /**

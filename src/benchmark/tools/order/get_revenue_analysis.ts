@@ -11,22 +11,22 @@ export const getRevenueAnalysisSchema = {
       .default("month")
       .describe("Time period to group revenue by"),
   },
-  outputSchema: {
-    summary: z.object({
-      totalRevenue: z.number(),
-      totalOrders: z.number(),
-      averageOrderValue: z.number(),
-      periodCount: z.number(),
-    }),
-    periods: z.array(
-      z.object({
-        period: z.string(),
-        revenue: z.number(),
-        orderCount: z.number(),
-        averageOrderValue: z.number(),
-      }),
-    ),
-  },
+  // outputSchema: {
+  //   summary: z.object({
+  //     totalRevenue: z.number(),
+  //     totalOrders: z.number(),
+  //     averageOrderValue: z.number(),
+  //     periodCount: z.number(),
+  //   }),
+  //   periods: z.array(
+  //     z.object({
+  //       period: z.string(),
+  //       revenue: z.number(),
+  //       orderCount: z.number(),
+  //       averageOrderValue: z.number(),
+  //     }),
+  //   ),
+  // },
 };
 
 export const getRevenueAnalysisToolDefinition = {
@@ -66,7 +66,7 @@ export async function get_revenue_analysis({
   const start = startDate ? new Date(startDate) : undefined;
   const end = endDate ? new Date(endDate) : undefined;
 
-  const whereClause: any = {};
+  const whereClause: { orderDate?: { gte?: Date; lte?: Date } } = {};
   if (start || end) {
     whereClause.orderDate = {};
     if (start) whereClause.orderDate.gte = start;
@@ -87,7 +87,7 @@ export async function get_revenue_analysis({
 
   orders.forEach((order) => {
     const periodKey = getPeriodKey(order.orderDate, groupBy);
-    const existing = periodMap.get(periodKey) || { revenue: 0, orderCount: 0 };
+    const existing = periodMap.get(periodKey) ?? { revenue: 0, orderCount: 0 };
     existing.revenue += order.total;
     existing.orderCount += 1;
     periodMap.set(periodKey, existing);

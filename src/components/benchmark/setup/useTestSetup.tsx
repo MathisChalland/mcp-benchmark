@@ -45,7 +45,7 @@ export function useTestSetup() {
 
   const handlePromptChange = useCallback(
     (value: string) => {
-      if (selectedTest && value === selectedTest.instruction) {
+      if (value === selectedTest?.instruction) {
         return;
       }
       setSelectedTestId(null);

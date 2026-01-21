@@ -85,7 +85,7 @@ declare function get_revenue_analysis({ startDate, endDate, groupBy = "month", }
   search_orders: `/**
  * Search and filter orders with flexible criteria
  */
-declare function search_orders({ startDate, endDate, status, minTotal, maxTotal, customerId, sortBy = "orderDate", sortOrder = "desc", limit = 20, offset = 0, }: { startDate?: string; endDate?: string; status?: string; minTotal?: number; maxTotal?: number; customerId?: number; sortBy?: "orderDate" | "total" | "status"; sortOrder?: "asc" | "desc"; limit?: number /* max 100 */; offset?: number; }): Promise<{
+declare function search_orders({ startDate, endDate, status, minTotal, maxTotal, customerId, sortBy = "orderDate", sortOrder = "desc", limit = 20, offset = 0, }: { startDate?: string; endDate?: string; status?: string; minTotal?: number; maxTotal?: number; customerId?: string; sortBy?: "orderDate" | "total" | "status"; sortOrder?: "asc" | "desc"; limit?: number /* max 100 */; offset?: number; }): Promise<{
   orders: Array<{
     id: string;
     customerId: string;

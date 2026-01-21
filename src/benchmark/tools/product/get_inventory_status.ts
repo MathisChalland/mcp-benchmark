@@ -40,18 +40,18 @@ export const getInventoryStatusSchema = {
       .default("asc")
       .describe("Sort order (ascending or descending)"),
   },
-  outputSchema: {
-    summary: z.object({
-      totalProducts: z.number(),
-      outOfStockCount: z.number(),
-      lowStockCount: z.number(),
-      inStockCount: z.number(),
-      totalStockValue: z.number(),
-    }),
-    outOfStockProductIds: z.array(z.string()).optional(),
-    lowStockProductIds: z.array(z.string()).optional(),
-    inStockProductIds: z.array(z.string()).optional(),
-  },
+  // outputSchema: {
+  //   summary: z.object({
+  //     totalProducts: z.number(),
+  //     outOfStockCount: z.number(),
+  //     lowStockCount: z.number(),
+  //     inStockCount: z.number(),
+  //     totalStockValue: z.number(),
+  //   }),
+  //   outOfStockProductIds: z.array(z.string()).optional(),
+  //   lowStockProductIds: z.array(z.string()).optional(),
+  //   inStockProductIds: z.array(z.string()).optional(),
+  // },
 };
 
 export const getInventoryStatusToolDefinition = {

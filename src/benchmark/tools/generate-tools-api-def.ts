@@ -27,9 +27,10 @@ const TOOL_FILES = [
 function extractFunctionInfo(filePath: string): FunctionInfo | null {
   const content = fs.readFileSync(filePath, "utf-8");
 
-  const funcMatch = content.match(
-    /export async function (\w+)\s*\(([\s\S]*?)\)\s*(?::\s*(Promise<[\s\S]*?>))?\s*{/,
-  );
+  const funcMatch =
+    /export async function (\w+)\s*\(([\s\S]*?)\)\s*(?::\s*(Promise<[\s\S]*?>))?\s*{/.exec(
+      content,
+    );
 
   if (!funcMatch) {
     console.warn(`No function signature found in ${filePath}`);
@@ -38,8 +39,8 @@ function extractFunctionInfo(filePath: string): FunctionInfo | null {
 
   const [, name, params, explicitReturnType] = funcMatch;
 
-  const jsdocMatch = content.match(
-    /\/\*\*([\s\S]*?)\*\/\s*export async function/,
+  const jsdocMatch = /\/\*\*([\s\S]*?)\*\/\s*export async function/.exec(
+    content,
   );
 
   let jsdoc: string | null = null;
@@ -74,11 +75,11 @@ function loadInterfaceDefinitions(typesFilePath: string): string {
   const definitions: string[] = [];
 
   const interfaceRegex = /(?:export\s+)?interface\s+\w+\s*{[\s\S]*?^}/gm;
-  const interfaces = content.match(interfaceRegex) || [];
+  const interfaces = content.match(interfaceRegex) ?? [];
   definitions.push(...interfaces.map((i) => i.replace(/^export\s+/, "")));
 
   const typeRegex = /(?:export\s+)?type\s+\w+\s*=[\s\S]*?;/gm;
-  const types = content.match(typeRegex) || [];
+  const types = content.match(typeRegex) ?? [];
   definitions.push(...types.map((t) => t.replace(/^export\s+/, "")));
 
   return definitions.join("\n\n");

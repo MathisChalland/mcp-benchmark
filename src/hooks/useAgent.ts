@@ -200,7 +200,7 @@ export function useAgent({
       };
 
       const reasoningContent =
-        assistantMessage.reasoning ||
+        assistantMessage.reasoning ??
         assistantMessage.reasoningDetails
           ?.map((detail) => {
             if (detail.type === "reasoning.text" && detail.text) {

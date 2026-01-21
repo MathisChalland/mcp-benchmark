@@ -8,14 +8,14 @@ export const getProductSchema = {
       .string()
       .describe("The ID of the product to retrieve (price is in cents)"),
   },
-  outputSchema: {
-    id: z.string(),
-    name: z.string(),
-    description: z.string(),
-    price: z.number(),
-    stock: z.number(),
-    createdAt: z.string().describe("ISO date string"),
-  },
+  // outputSchema: {
+  //   id: z.string(),
+  //   name: z.string(),
+  //   description: z.string(),
+  //   price: z.number(),
+  //   stock: z.number(),
+  //   createdAt: z.string().describe("ISO date string"),
+  // },
 };
 
 export const getProductToolDefinition = {

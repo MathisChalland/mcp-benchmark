@@ -6,26 +6,26 @@ export const getOrderDetailsSchema = {
   inputSchema: {
     orderId: z.string().describe("The ID of the order to retrieve"),
   },
-  outputSchema: {
-    id: z.string(),
-    orderDate: z.string().describe("ISO date string"),
-    status: z.string(),
-    total: z.number(),
-    customer: z.object({
-      id: z.string(),
-      name: z.string(),
-      email: z.string(),
-    }),
-    items: z.array(
-      z.object({
-        id: z.string(),
-        productId: z.string(),
-        productName: z.string(),
-        quantity: z.number(),
-        price: z.number(),
-      }),
-    ),
-  },
+  // outputSchema: {
+  //   id: z.string(),
+  //   orderDate: z.string().describe("ISO date string"),
+  //   status: z.string(),
+  //   total: z.number(),
+  //   customer: z.object({
+  //     id: z.string(),
+  //     name: z.string(),
+  //     email: z.string(),
+  //   }),
+  //   items: z.array(
+  //     z.object({
+  //       id: z.string(),
+  //       productId: z.string(),
+  //       productName: z.string(),
+  //       quantity: z.number(),
+  //       price: z.number(),
+  //     }),
+  //   ),
+  // },
 };
 
 /**

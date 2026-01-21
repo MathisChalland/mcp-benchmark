@@ -1,6 +1,7 @@
 import { z } from "zod";
 import type { Product } from "../types";
 import { db } from "@/server/db";
+import { Prisma } from "@prisma/client";
 
 export const searchProductsSchema = {
   inputSchema: {
@@ -52,19 +53,19 @@ export const searchProductsSchema = {
       .default(0)
       .describe("Number of products to skip for pagination"),
   },
-  outputSchema: {
-    products: z.array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        description: z.string(),
-        price: z.number(),
-        stock: z.number(),
-        createdAt: z.string().describe("ISO date string"),
-      }),
-    ),
-    hasMore: z.boolean(),
-  },
+  // outputSchema: {
+  //   products: z.array(
+  //     z.object({
+  //       id: z.string(),
+  //       name: z.string(),
+  //       description: z.string(),
+  //       price: z.number(),
+  //       stock: z.number(),
+  //       createdAt: z.string().describe("ISO date string"),
+  //     }),
+  //   ),
+  //   hasMore: z.boolean(),
+  // },
 };
 
 export const searchProductsToolDefinition = {
@@ -103,7 +104,7 @@ export async function search_products({
 }> {
   await new Promise((resolve) => setTimeout(resolve, 100));
 
-  const whereClause: any = {};
+  const whereClause: Prisma.ProductWhereInput = {};
 
   if (searchTerm) {
     whereClause.OR = [

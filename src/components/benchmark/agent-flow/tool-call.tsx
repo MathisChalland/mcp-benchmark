@@ -25,19 +25,28 @@ export interface ToolCallInfo {
   error?: string;
 }
 
-function parseToolResponse(response?: string) {
+function parseToolResponse(response?: string): {
+  error?: string;
+  result?: string;
+} {
   if (!response) return {};
 
   try {
-    const parsed = JSON.parse(response);
-    if (parsed?.error) {
+    const parsed = JSON.parse(response) as unknown;
+    if (
+      parsed &&
+      typeof parsed === "object" &&
+      "error" in parsed &&
+      parsed.error
+    ) {
+      const typedParsed = parsed as { error: unknown; result?: unknown };
       return {
         error:
-          typeof parsed.error === "string"
-            ? parsed.error
-            : JSON.stringify(parsed.error, null, 2),
-        result: parsed.result
-          ? JSON.stringify(parsed.result, null, 2)
+          typeof typedParsed.error === "string"
+            ? typedParsed.error
+            : JSON.stringify(typedParsed.error, null, 2),
+        result: typedParsed.result
+          ? JSON.stringify(typedParsed.result, null, 2)
           : undefined,
       };
     }
@@ -60,12 +69,17 @@ export function ToolCall({ call }: { call: ToolCallInfo }) {
   const isLoading = !call.response && !call.error;
   const { result, error } = parseToolResponse(call.response);
   const errorMessage = call.error ?? error;
-  const canOpen = (result || errorMessage) && !isLoading;
+  const canOpen = (result ?? errorMessage) && !isLoading;
 
-  const getArguments = () => {
+  const getArguments = (): string => {
     if (call.name !== "execute_code") return call.arguments;
     try {
-      return JSON.parse(call.arguments).code || call.arguments;
+      const parsed = JSON.parse(call.arguments) as unknown;
+      if (parsed && typeof parsed === "object" && "code" in parsed) {
+        const typedParsed = parsed as { code?: string };
+        return typedParsed.code ?? call.arguments;
+      }
+      return call.arguments;
     } catch {
       return call.arguments;
     }
@@ -86,7 +100,7 @@ export function ToolCall({ call }: { call: ToolCallInfo }) {
           className={cn(
             "group bg-secondary border-border flex items-center gap-2 rounded-lg border px-3 py-2 transition-all",
             isLoading && "animate-pulse",
-            errorMessage &&
+            !!errorMessage &&
               !isLoading &&
               "border-destructive/50 bg-destructive/10",
             canOpen && "hover:bg-secondary/80 cursor-pointer",
@@ -112,7 +126,7 @@ export function ToolCall({ call }: { call: ToolCallInfo }) {
               <Wrench
                 className={cn(
                   "size-4",
-                  errorMessage ? "text-destructive" : "text-emerald-500",
+                  !!errorMessage ? "text-destructive" : "text-emerald-500",
                 )}
               />
               <span className="font-mono text-sm font-medium">{call.name}</span>
@@ -121,12 +135,12 @@ export function ToolCall({ call }: { call: ToolCallInfo }) {
               variant="secondary"
               className={cn(
                 "text-[10px]",
-                errorMessage
+                !!errorMessage
                   ? "bg-destructive/10 text-destructive"
                   : "bg-emerald-100 text-emerald-700",
               )}
             >
-              {errorMessage ? "Failed" : "Completed"}
+              {!!errorMessage ? "Failed" : "Completed"}
             </Badge>
           </div>
 

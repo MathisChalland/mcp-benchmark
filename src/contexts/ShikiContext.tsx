@@ -22,9 +22,13 @@ export function ShikiProvider({ children }: { children: React.ReactNode }) {
       themes: [githubDark, githubLight],
       langs: [json, typescript, javascript],
       engine: createOnigurumaEngine(import("shiki/wasm")),
-    }).then((hl) => {
-      setHighlighter(hl);
-    });
+    })
+      .then((hl) => {
+        setHighlighter(hl);
+      })
+      .catch((err) => {
+        console.error("Failed to initialize Shiki highlighter:", err);
+      });
   }, []);
 
   return (

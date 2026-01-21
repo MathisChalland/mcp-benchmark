@@ -14,18 +14,18 @@ export const executeCodeSchema = {
   inputSchema: {
     code: z.string().describe("JavaScript code to execute"),
   },
-  outputSchema: {
-    result: z.any(),
-    logs: z.array(z.string()).optional(),
-    error: z.string().optional(),
-  },
+  // outputSchema: {
+  //   result: z.any(),
+  //   logs: z.array(z.string()).optional(),
+  //   error: z.string().optional(),
+  // },
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-empty-function
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 export async function execute_code(code: string): Promise<{
-  result: any;
+  result: unknown;
   logs?: string[];
   error?: string;
 }> {
@@ -58,8 +58,8 @@ export async function execute_code(code: string): Promise<{
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     const fn = new AsyncFunction(...paramNames, code);
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-    const result = await fn.apply(null, paramValues);
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
+    const result = await fn(...paramValues);
 
     return {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment

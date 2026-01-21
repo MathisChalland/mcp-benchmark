@@ -1,4 +1,5 @@
 import { db } from "@/server/db";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 export const searchOrdersSchema = {
@@ -46,21 +47,21 @@ export const searchOrdersSchema = {
       .default(0)
       .describe("Number of orders to skip for pagination"),
   },
-  outputSchema: {
-    orders: z.array(
-      z.object({
-        id: z.string(),
-        customerId: z.string(),
-        customerName: z.string(),
-        customerEmail: z.string(),
-        orderDate: z.string().describe("ISO date string"),
-        status: z.string(),
-        total: z.number(),
-        itemCount: z.number(),
-      }),
-    ),
-    hasMore: z.boolean(),
-  },
+  // outputSchema: {
+  //   orders: z.array(
+  //     z.object({
+  //       id: z.string(),
+  //       customerId: z.string(),
+  //       customerName: z.string(),
+  //       customerEmail: z.string(),
+  //       orderDate: z.string().describe("ISO date string"),
+  //       status: z.string(),
+  //       total: z.number(),
+  //       itemCount: z.number(),
+  //     }),
+  //   ),
+  //   hasMore: z.boolean(),
+  // },
 };
 
 export const searchOrdersToolDefinition = {
@@ -110,7 +111,7 @@ export async function search_orders({
 }> {
   await new Promise((resolve) => setTimeout(resolve, 100));
 
-  const whereClause: any = {};
+  const whereClause: Prisma.OrderWhereInput = {};
 
   if (startDate || endDate) {
     whereClause.orderDate = {};

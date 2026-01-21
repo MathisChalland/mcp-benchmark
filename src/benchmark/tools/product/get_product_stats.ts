@@ -1,4 +1,5 @@
 import { db } from "@/server/db";
+import { Prisma } from "@prisma/client";
 import { z } from "zod";
 
 export const getProductStatsSchema = {
@@ -26,18 +27,18 @@ export const getProductStatsSchema = {
       .optional()
       .describe("Sort order (ascending or descending)"),
   },
-  outputSchema: {
-    products: z.array(
-      z.object({
-        productId: z.string(),
-        productName: z.string(),
-        totalQuantitySold: z.number(),
-        totalRevenue: z.number(),
-        orderCount: z.number(),
-        averageQuantityPerOrder: z.number(),
-      }),
-    ),
-  },
+  // outputSchema: {
+  //   products: z.array(
+  //     z.object({
+  //       productId: z.string(),
+  //       productName: z.string(),
+  //       totalQuantitySold: z.number(),
+  //       totalRevenue: z.number(),
+  //       orderCount: z.number(),
+  //       averageQuantityPerOrder: z.number(),
+  //     }),
+  //   ),
+  // },
 };
 
 /**
@@ -76,8 +77,8 @@ export async function get_product_stats({
 > {
   await new Promise((resolve) => setTimeout(resolve, 100));
 
-  const orderWhere: any = {
-    ...(startDate || endDate
+  const orderWhere: Prisma.OrderItemWhereInput = {
+    ...((startDate ?? endDate)
       ? {
           order: {
             orderDate: {
@@ -110,7 +111,7 @@ export async function get_product_stats({
   >();
 
   orderItems.forEach((item) => {
-    const existing = productMap.get(item.productId) || {
+    const existing = productMap.get(item.productId) ?? {
       productId: item.productId,
       productName: item.product.name,
       totalQuantitySold: 0,

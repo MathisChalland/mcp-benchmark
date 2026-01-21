@@ -13,13 +13,13 @@ export const getCustomerSchema = {
       .describe("The email of the customer to retrieve")
       .optional(),
   },
-  outputSchema: {
-    id: z.string(),
-    name: z.string(),
-    email: z.string(),
-    address: z.string(),
-    createdAt: z.string().describe("ISO date string"),
-  },
+  // outputSchema: {
+  //   id: z.string(),
+  //   name: z.string(),
+  //   email: z.string(),
+  //   address: z.string(),
+  //   createdAt: z.string().describe("ISO date string"),
+  // },
 };
 
 export const getCustomerToolDefinition = {

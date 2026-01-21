@@ -15,7 +15,7 @@ export const verifyMcpToken = async (
     }
 
     return {
-      token: bearerToken || "session-based",
+      token: bearerToken ?? "session-based",
       scopes: ["mcp:execute"],
       clientId: session.user.id,
       extra: {

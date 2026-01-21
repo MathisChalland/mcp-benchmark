@@ -25,7 +25,9 @@ export const llmRouter = createTRPCRouter({
     .mutation(async ({ input }) => {
       const response = await openRouter.chat.send({
         model: input.model,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         messages: input.messages,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         tools: input.tools,
         reasoning: {
           effort: input.reasoning,
