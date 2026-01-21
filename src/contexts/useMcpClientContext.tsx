@@ -15,6 +15,7 @@ interface McpClientContextValue {
   codeGen: McpClientType;
   isConnected: boolean;
   isConnecting: boolean;
+  systemPrompt?: string;
 }
 
 const McpClientContext = createContext<McpClientContextValue | null>(null);

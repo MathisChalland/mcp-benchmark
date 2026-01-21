@@ -5,10 +5,10 @@ import { api } from "@/trpc/react";
 import type { ToolCall, ToolContent } from "@/app/api/mcp/types";
 import type { FlowNode } from "@/components/benchmark/agent-flow/flow-node";
 import type {
-  Message,
-  ChatMessageToolCall,
-  ToolDefinitionJson,
-} from "@openrouter/sdk/models";
+  ChatCompletionMessageParam,
+  ChatCompletionMessageToolCall,
+  ChatCompletionTool,
+} from "openai/resources";
 import type {
   Effort,
   LLMModelKey,
@@ -20,7 +20,7 @@ interface TaskResult {
   error?: string;
   iterations: number;
   metrics: TaskMetrics;
-  messages: Message[];
+  messages: ChatCompletionMessageParam[];
 }
 
 type AgentStatus =
@@ -37,7 +37,10 @@ interface UseAgentOptions {
   maxIterations?: number;
   agentType?: string;
   onToolCall?: (toolName: string, args: Record<string, unknown>) => void;
-  onIteration?: (iteration: number, message: Message) => void;
+  onIteration?: (
+    iteration: number,
+    message: ChatCompletionMessageParam,
+  ) => void;
 }
 
 export function useAgent({
@@ -50,7 +53,7 @@ export function useAgent({
   const metricTracker = useMetricTracker();
   const utils = api.useUtils();
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([]);
   const [currentIteration, setCurrentIteration] = useState(0);
   const [result, setResult] = useState<TaskResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -109,7 +112,10 @@ export function useAgent({
   );
 
   const executeToolCalls = useCallback(
-    async (toolCalls: ChatMessageToolCall[], taskMessages: Message[]) => {
+    async (
+      toolCalls: ChatCompletionMessageToolCall[],
+      taskMessages: ChatCompletionMessageParam[],
+    ) => {
       const functionCalls = toolCalls.filter((tc) => tc.type === "function");
       setFlow((prev) => [
         ...prev,
@@ -127,9 +133,9 @@ export function useAgent({
           checkAborted();
 
           const result = await executeTool(toolCall);
-          const toolMessage: Message = {
+          const toolMessage: ChatCompletionMessageParam = {
             role: "tool",
-            toolCallId: toolCall.id,
+            tool_call_id: toolCall.id,
             content: result.result,
           };
 
@@ -164,7 +170,7 @@ export function useAgent({
   );
 
   const callLLM = useCallback(
-    async (taskMessages: Message[]) => {
+    async (taskMessages: ChatCompletionMessageParam[]) => {
       setFlow((prev) => [
         ...prev,
         {
@@ -194,29 +200,17 @@ export function useAgent({
         throw new Error("No response from LLM");
       }
 
-      const newMessage: Message = {
+      const newMessage: ChatCompletionMessageParam = {
         role: "assistant",
         content: assistantMessage.content,
-        toolCalls: assistantMessage.toolCalls,
-        ...(assistantMessage.reasoningDetails && {
-          reasoningDetails: assistantMessage.reasoningDetails,
-        }),
+        tool_calls: assistantMessage.tool_calls,
       };
 
-      const reasoningContent =
-        assistantMessage.reasoning ??
-        assistantMessage.reasoningDetails
-          ?.map((detail) => {
-            if (detail.type === "reasoning.text" && detail.text) {
-              return detail.text;
-            }
-            if (detail.type === "reasoning.summary" && detail.summary) {
-              return detail.summary;
-            }
-            return null;
-          })
-          .filter(Boolean)
-          .join("\n");
+      // OpenRouter may include reasoning in extended response
+      const extendedMessage = assistantMessage as {
+        reasoning?: string;
+      };
+      const reasoningContent = extendedMessage.reasoning;
 
       if (reasoningContent) {
         setFlow((prev) => [
@@ -244,7 +238,7 @@ export function useAgent({
 
   const finalizeTask = useCallback(
     (
-      taskMessages: Message[],
+      taskMessages: ChatCompletionMessageParam[],
       iterations: number,
       outcome:
         | { success: true; answer: string | null }
@@ -285,7 +279,11 @@ export function useAgent({
       metricTracker.start();
       abortControllerRef.current = new AbortController();
 
-      const taskMessages: Message[] = [{ role: "user", content: instruction }];
+      const taskMessages: ChatCompletionMessageParam[] = [];
+      if (mcpClient.systemPrompt) {
+        taskMessages.push({ role: "system", content: mcpClient.systemPrompt });
+      }
+      taskMessages.push({ role: "user", content: instruction });
       setMessages([...taskMessages]);
 
       let iterations = 0;
@@ -298,7 +296,7 @@ export function useAgent({
 
           const assistantMessage = await callLLM(taskMessages);
 
-          if (!assistantMessage.toolCalls?.length) {
+          if (!assistantMessage.tool_calls?.length) {
             const answer =
               typeof assistantMessage.content === "string"
                 ? assistantMessage.content
@@ -309,7 +307,7 @@ export function useAgent({
             });
           }
 
-          await executeToolCalls(assistantMessage.toolCalls, taskMessages);
+          await executeToolCalls(assistantMessage.tool_calls, taskMessages);
         }
 
         return finalizeTask(taskMessages, iterations, {
@@ -365,7 +363,7 @@ export function useAgent({
   };
 }
 
-function convertToOpenAITools(tools: Tool[]): ToolDefinitionJson[] {
+function convertToOpenAITools(tools: Tool[]): ChatCompletionTool[] {
   return tools.map((tool) => ({
     type: "function" as const,
     function: {

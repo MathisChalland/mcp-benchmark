@@ -12,9 +12,10 @@ type ConnectionStatus = "idle" | "connecting" | "connected" | "error";
 
 interface UseMcpClientOptions {
   serverUrl: string;
+  systemPrompt?: string;
 }
 
-export function useMcpClient({ serverUrl }: UseMcpClientOptions) {
+export function useMcpClient({ serverUrl,systemPrompt }: UseMcpClientOptions) {
   const [tools, setTools] = useState<Tool[]>([]);
   const [status, setStatus] = useState<ConnectionStatus>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -97,6 +98,7 @@ export function useMcpClient({ serverUrl }: UseMcpClientOptions) {
     tools,
     status,
     error,
+    systemPrompt,
 
     connect,
     callTool,

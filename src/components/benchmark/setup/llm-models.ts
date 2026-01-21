@@ -28,12 +28,12 @@ export const LLM_MODELS = {
     },
     contextWindow: 200,
   },
-  "openai/gpt-5.2": {
-    name: "GPT-5.2",
+  "openai/gpt-5.1": {
+    name: "GPT-5.1",
     supportsReasoning: true,
     tokenCost: {
-      input: 1.75,
-      output: 14,
+      input: 1.25,
+      output: 10,
     },
     contextWindow: 400,
   },

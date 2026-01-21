@@ -1,4 +1,4 @@
-import type { ChatGenerationTokenUsage } from "@openrouter/sdk/models";
+import type { CompletionUsage } from "openai/resources";
 import { useCallback, useRef, useState } from "react";
 
 export interface TaskMetrics {
@@ -10,12 +10,6 @@ export interface TaskMetrics {
   toolCalls: number;
   durationMs: number;
   finished: boolean;
-}
-
-interface LLMUsage {
-  total_tokens?: number;
-  prompt_tokens?: number;
-  completion_tokens?: number;
 }
 
 const initialMetrics: TaskMetrics = {
@@ -46,17 +40,17 @@ export function useMetricTracker() {
     setMetrics(initialMetrics);
   }, []);
 
-  const recordLLMCall = useCallback((usage?: ChatGenerationTokenUsage) => {
+  const recordLLMCall = useCallback((usage?: CompletionUsage) => {
     const reasoningTokens =
-      usage?.completionTokensDetails?.reasoningTokens ?? 0;
+      usage?.completion_tokens_details?.reasoning_tokens ?? 0;
     metricsRef.current = {
       ...metricsRef.current,
       llmCalls: metricsRef.current.llmCalls + 1,
-      totalTokens: metricsRef.current.totalTokens + (usage?.totalTokens ?? 0),
+      totalTokens: metricsRef.current.totalTokens + (usage?.total_tokens ?? 0),
       promptTokens:
-        metricsRef.current.promptTokens + (usage?.promptTokens ?? 0),
+        metricsRef.current.promptTokens + (usage?.prompt_tokens ?? 0),
       completionTokens:
-        metricsRef.current.completionTokens + (usage?.completionTokens ?? 0),
+        metricsRef.current.completionTokens + (usage?.completion_tokens ?? 0),
       reasoningTokens: metricsRef.current.reasoningTokens + reasoningTokens,
     };
     setMetrics(metricsRef.current);
