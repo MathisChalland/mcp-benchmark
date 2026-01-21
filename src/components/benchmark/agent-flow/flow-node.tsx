@@ -1,5 +1,6 @@
 import {
   AlertCircle,
+  Bot,
   CheckCircle2,
   Loader2,
   MessageSquare,
@@ -18,6 +19,7 @@ interface ToolCallInfo {
 }
 
 export type FlowNode =
+  | { type: "agent"; agentType: string }
   | { type: "request"; content: string }
   | { type: "thinking"; content: string }
   | { type: "response"; content: string }
@@ -93,6 +95,17 @@ function FlowNodeCard({
 }
 
 export function FlowNode({ node }: { node: FlowNode }) {
+  if (node.type === "agent") {
+    return (
+      <div className="flex w-full justify-center pt-8">
+        <div className="border-border bg-background flex gap-2 rounded-lg border px-5 py-5 text-sm leading-relaxed font-medium">
+          <Bot className="size-5" />
+          <span className="font-mono">{node.agentType} Agent</span>
+        </div>
+      </div>
+    );
+  }
+
   if (node.type === "request") {
     return (
       <FlowNodeCard

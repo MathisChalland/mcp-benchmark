@@ -8,14 +8,16 @@ import type { TaskMetrics } from "@/hooks/useMetricTracker";
 interface Props {
   mcpClient: ReturnType<typeof useMcpClient>;
   setup: TestSetupResult;
+  agentType?: string;
   onComplete?: (metrics: TaskMetrics) => void;
 }
 
-export function Agent({ mcpClient, setup, onComplete }: Props) {
+export function Agent({ mcpClient, setup, agentType, onComplete }: Props) {
   const agent = useAgent({
     mcpClient,
     reasoning: setup.config.reasoning,
     model: setup.config.model,
+    agentType,
   });
 
   // Auto-start the test when component mounts

@@ -35,6 +35,7 @@ interface UseAgentOptions {
   model?: LLMModelKey;
   reasoning?: Effort;
   maxIterations?: number;
+  agentType?: string;
   onToolCall?: (toolName: string, args: Record<string, unknown>) => void;
   onIteration?: (iteration: number, message: Message) => void;
 }
@@ -44,6 +45,7 @@ export function useAgent({
   model = "openai/gpt-5-mini",
   reasoning = "minimal",
   maxIterations = 15,
+  agentType,
 }: UseAgentOptions) {
   const metricTracker = useMetricTracker();
   const utils = api.useUtils();
@@ -52,7 +54,9 @@ export function useAgent({
   const [currentIteration, setCurrentIteration] = useState(0);
   const [result, setResult] = useState<TaskResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [flow, setFlow] = useState<FlowNode[]>([]);
+  const [flow, setFlow] = useState<FlowNode[]>(
+    agentType ? [{ type: "agent", agentType }] : [],
+  );
 
   const error = result?.error ?? mcpClient.error ?? null;
 
@@ -339,9 +343,9 @@ export function useAgent({
     setMessages([]);
     setCurrentIteration(0);
     setResult(null);
-    setFlow([]);
+    setFlow(agentType ? [{ type: "agent", agentType }] : []);
     metricTracker.reset();
-  }, [metricTracker]);
+  }, [metricTracker, agentType]);
 
   return {
     status: status,

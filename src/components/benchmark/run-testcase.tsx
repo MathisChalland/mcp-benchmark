@@ -57,7 +57,7 @@ export function RunTestcase({ setup, onNewSetup }: Props) {
                   key={key}
                   mcpClient={mcpClients[key]}
                   setup={setup}
-                  serverName={MCP_SERVERS[key].name}
+                  serverName={name}
                   metrics={metrics[key]}
                   onComplete={(m) =>
                     setMetrics((prev) => ({ ...prev, [key]: m }))
@@ -87,7 +87,12 @@ function AgentColumn({
 }) {
   return (
     <div className="sticky top-0 mx-auto flex w-full max-w-4xl flex-col gap-8 px-6">
-      <Agent mcpClient={mcpClient} setup={setup} onComplete={onComplete} />
+      <Agent
+        mcpClient={mcpClient}
+        setup={setup}
+        agentType={serverName}
+        onComplete={onComplete}
+      />
       {metrics && metrics.finished && (
         <>
           <div className="border-border border-t" />
