@@ -31,7 +31,7 @@ export const tests: TestCase[] = [
   {
     id: "inventory-low-stock-value",
     instruction:
-      "Get the inventory status with a low stock threshold of 15. What is the total potential revenue if all low-stock products are sold?",
+      "Get the inventory status with a low stock threshold of 15. What is the total potential revenue in euro if all low-stock products are sold?",
   },
 
   // ===== COMPLEX MULTI-STEP TEST =====
@@ -40,8 +40,7 @@ export const tests: TestCase[] = [
     instruction: `Identify customers at risk of churning using the following criteria:
       1. Find customers who have made at least 3 orders in total
       2. Their most recent order must be more than 90 days ago
-      3. Calculate their average order value
-      4. Among these at-risk customers, find the one with the highest lifetime value (total spent)
+      3. Among these at-risk customers, find the one with the highest lifetime value (total spent)
       
       Return ONLY the name of the highest-value at-risk customer and their total lifetime spending as a simple object: { customerName: string, totalSpent: number }`,
   },

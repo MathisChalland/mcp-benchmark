@@ -89,9 +89,14 @@ function AgentColumn({
     <div className="sticky top-0 mx-auto flex w-full max-w-4xl flex-col gap-8 px-6">
       <Agent mcpClient={mcpClient} setup={setup} onComplete={onComplete} />
       {metrics && metrics.finished && (
-          <>
+        <>
           <div className="border-border border-t" />
-          <MetricOverview metrics={metrics} serverName={serverName} /></>
+          <MetricOverview
+            metrics={metrics}
+            serverName={serverName}
+            model={setup.config.model}
+          />
+        </>
       )}
     </div>
   );

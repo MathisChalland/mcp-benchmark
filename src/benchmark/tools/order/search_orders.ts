@@ -21,7 +21,7 @@ export const searchOrdersSchema = {
       .min(0)
       .optional()
       .describe("Maximum order total filter"),
-    customerId: z.number().optional().describe("Filter by customer ID"),
+    customerId: z.string().optional().describe("Filter by customer ID"),
     sortBy: z
       .enum(["orderDate", "total", "status"])
       .optional()
@@ -90,7 +90,7 @@ export async function search_orders({
   status?: string;
   minTotal?: number;
   maxTotal?: number;
-  customerId?: number;
+  customerId?: string;
   sortBy?: "orderDate" | "total" | "status";
   sortOrder?: "asc" | "desc";
   limit?: number /* max 100 */;

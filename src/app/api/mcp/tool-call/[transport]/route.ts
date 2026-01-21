@@ -57,32 +57,8 @@ const handler = createMcpHandler(
     server.registerTool(
       "search_customers",
       searchCustomersToolDefinition,
-      async ({
-        searchTerm,
-        minOrders,
-        maxOrders,
-        minTotalSpent,
-        maxTotalSpent,
-        registeredAfter,
-        registeredBefore,
-        sortBy,
-        sortOrder,
-        limit,
-        offset,
-      }) => {
-        const output = await search_customers({
-          searchTerm,
-          minOrders,
-          maxOrders,
-          minTotalSpent,
-          maxTotalSpent,
-          registeredAfter,
-          registeredBefore,
-          sortBy,
-          sortOrder,
-          limit,
-          offset,
-        });
+      async (props) => {
+        const output = await search_customers(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
           structuredContent: output,
@@ -93,13 +69,8 @@ const handler = createMcpHandler(
     server.registerTool(
       "get_customer_orders",
       getCustomerOrdersToolDefinition,
-      async ({ customerId, startDate, endDate, status }) => {
-        const output = await get_customer_orders({
-          customerId,
-          startDate,
-          endDate,
-          status,
-        });
+      async (props) => {
+        const output = await get_customer_orders(props);
         return {
           content: [{ type: "text", text: JSON.stringify({ orders: output }) }],
           structuredContent: { orders: output },
@@ -110,8 +81,8 @@ const handler = createMcpHandler(
     server.registerTool(
       "get_order_details",
       getOrderDetailsToolDefinition,
-      async ({ orderId }) => {
-        const output = await get_order_details({ orderId });
+      async (props) => {
+        const output = await get_order_details(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
           structuredContent: output,
@@ -122,30 +93,8 @@ const handler = createMcpHandler(
     server.registerTool(
       "search_orders",
       searchOrdersToolDefinition,
-      async ({
-        startDate,
-        endDate,
-        status,
-        minTotal,
-        maxTotal,
-        customerId,
-        sortBy,
-        sortOrder,
-        limit,
-        offset,
-      }) => {
-        const output = await search_orders({
-          startDate,
-          endDate,
-          status,
-          minTotal,
-          maxTotal,
-          customerId,
-          sortBy,
-          sortOrder,
-          limit,
-          offset,
-        });
+      async (props) => {
+        const output = await search_orders(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
           structuredContent: output,
@@ -156,12 +105,8 @@ const handler = createMcpHandler(
     server.registerTool(
       "get_revenue_analysis",
       getRevenueAnalysisToolDefinition,
-      async ({ startDate, endDate, groupBy }) => {
-        const output = await get_revenue_analysis({
-          startDate,
-          endDate,
-          groupBy,
-        });
+      async (props) => {
+        const output = await get_revenue_analysis(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
           structuredContent: output,
@@ -172,8 +117,8 @@ const handler = createMcpHandler(
     server.registerTool(
       "get_product_by_id",
       getProductToolDefinition,
-      async ({ productId }) => {
-        const output = await get_product({ productId });
+      async (props) => {
+        const output = await get_product(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
           structuredContent: output as any,
@@ -184,13 +129,8 @@ const handler = createMcpHandler(
     server.registerTool(
       "get_product_stats",
       getProductStatsToolDefinition,
-      async ({ productId, startDate, endDate, limit }) => {
-        const output = await get_product_stats({
-          productId,
-          startDate,
-          endDate,
-          limit,
-        });
+      async (props) => {
+        const output = await get_product_stats(props);
         return {
           content: [
             { type: "text", text: JSON.stringify({ products: output }) },
@@ -203,28 +143,8 @@ const handler = createMcpHandler(
     server.registerTool(
       "search_products",
       searchProductsToolDefinition,
-      async ({
-        searchTerm,
-        minPrice,
-        maxPrice,
-        minStock,
-        maxStock,
-        sortBy,
-        sortOrder,
-        limit,
-        offset,
-      }) => {
-        const output = await search_products({
-          searchTerm,
-          minPrice,
-          maxPrice,
-          minStock,
-          maxStock,
-          sortBy,
-          sortOrder,
-          limit,
-          offset,
-        });
+      async (props) => {
+        const output = await search_products(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
           structuredContent: output,
@@ -235,20 +155,8 @@ const handler = createMcpHandler(
     server.registerTool(
       "get_inventory_status",
       getInventoryStatusToolDefinition,
-      async ({
-        lowStockThreshold,
-        includeOutOfStock,
-        includeLowStock,
-        includeInStock,
-        limit,
-      }) => {
-        const output = await get_inventory_status({
-          lowStockThreshold,
-          includeOutOfStock,
-          includeLowStock,
-          includeInStock,
-          limit,
-        });
+      async (props) => {
+        const output = await get_inventory_status(props);
         return {
           content: [{ type: "text", text: JSON.stringify(output) }],
           structuredContent: output,

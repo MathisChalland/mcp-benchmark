@@ -8,8 +8,16 @@ export const searchProductsSchema = {
       .string()
       .optional()
       .describe("Search term to match against product name or description"),
-    minPrice: z.number().min(0).optional().describe("Minimum price filter"),
-    maxPrice: z.number().min(0).optional().describe("Maximum price filter"),
+    minPrice: z
+      .number()
+      .min(0)
+      .optional()
+      .describe("Minimum price filter in cents"),
+    maxPrice: z
+      .number()
+      .min(0)
+      .optional()
+      .describe("Maximum price filter in cents"),
     minStock: z
       .number()
       .min(0)

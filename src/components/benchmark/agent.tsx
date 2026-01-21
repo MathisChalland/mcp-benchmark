@@ -21,9 +21,14 @@ export function Agent({ mcpClient, setup, onComplete }: Props) {
   // Auto-start the test when component mounts
   useEffect(() => {
     if (agent.isReady && agent.messages.length === 0) {
-      agent.runTask(setup.prompt).then((result) => {
-        onComplete?.(result.metrics);
-      });
+      agent
+        .runTask(setup.prompt)
+        .then((result) => {
+          onComplete?.(result.metrics);
+        })
+        .catch((error) => {
+          console.error("Agent task failed:", error);
+        });
     }
   }, [agent.isReady]);
 
@@ -32,6 +37,9 @@ export function Agent({ mcpClient, setup, onComplete }: Props) {
       {agent.flow.map((node, index) => (
         <FlowNode key={index} node={node} />
       ))}
+      {agent.error && (
+        <FlowNode node={{ type: "error", content: agent.error }} />
+      )}
     </div>
   );
 }

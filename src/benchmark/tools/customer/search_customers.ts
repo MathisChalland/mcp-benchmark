@@ -22,12 +22,12 @@ export const searchCustomersSchema = {
       .number()
       .min(0)
       .optional()
-      .describe("Minimum total amount spent by customer"),
+      .describe("Minimum total amount spent by customer in cents"),
     maxTotalSpent: z
       .number()
       .min(0)
       .optional()
-      .describe("Maximum total amount spent by customer"),
+      .describe("Maximum total amount spent by customer in cents"),
     registeredAfter: z
       .string()
       .optional()

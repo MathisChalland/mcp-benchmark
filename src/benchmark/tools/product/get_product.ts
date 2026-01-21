@@ -4,7 +4,9 @@ import { db } from "@/server/db";
 
 export const getProductSchema = {
   inputSchema: {
-    productId: z.string().describe("The ID of the product to retrieve"),
+    productId: z
+      .string()
+      .describe("The ID of the product to retrieve (price is in cents)"),
   },
   outputSchema: {
     id: z.string(),

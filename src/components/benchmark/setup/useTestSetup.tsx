@@ -21,7 +21,7 @@ export interface TestSetupResult {
 }
 
 const defaultConfig: TestSetupConfig = {
-  model: "openai/gpt-5-mini",
+  model: "google/gemini-3-flash-preview",
   reasoning: "minimal",
   mcpServer: {
     toolCall: true,

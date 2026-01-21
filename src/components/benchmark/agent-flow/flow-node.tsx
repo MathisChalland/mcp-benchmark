@@ -1,4 +1,5 @@
 import {
+  AlertCircle,
   CheckCircle2,
   Loader2,
   MessageSquare,
@@ -20,8 +21,10 @@ export type FlowNode =
   | { type: "request"; content: string }
   | { type: "thinking"; content: string }
   | { type: "response"; content: string }
+  | { type: "reasoning"; content: string }
   | { type: "tool-calls"; calls: ToolCallInfo[] }
-  | { type: "llm-call"; callNumber: number; isLoading: boolean };
+  | { type: "llm-call"; callNumber: number; isLoading: boolean }
+  | { type: "error"; content: string };
 
 const flowNodeStyles = {
   blue: {
@@ -39,6 +42,10 @@ const flowNodeStyles = {
   violet: {
     card: "bg-[var(--color-info-soft,var(--color-violet-100))] dark:bg-[var(--color-info-soft,var(--color-violet-950))]",
     text: "text-[var(--color-info-accent,var(--color-violet-700))] dark:text-[var(--color-info-soft,var(--color-violet-400))]",
+  },
+  red: {
+    card: "bg-[var(--color-error-soft,var(--color-red-100))] dark:bg-[var(--color-error-soft,var(--color-red-950))]",
+    text: "text-[var(--color-error-accent,var(--color-red-700))] dark:text-[var(--color-error-soft,var(--color-red-400))]",
   },
 } as const;
 
@@ -129,6 +136,21 @@ export function FlowNode({ node }: { node: FlowNode }) {
     );
   }
 
+  if (node.type === "reasoning") {
+    return (
+      <FlowNodeCard
+        icon={Sparkles}
+        label="Reasoning"
+        color="violet"
+        content={
+          <p className="text-muted-foreground text-sm leading-relaxed whitespace-pre-wrap italic">
+            {node.content}
+          </p>
+        }
+      />
+    );
+  }
+
   if (node.type === "tool-calls") {
     return (
       <FlowNodeCard
@@ -158,6 +180,21 @@ export function FlowNode({ node }: { node: FlowNode }) {
           <div className="via-border to-border h-px flex-1 bg-linear-to-r from-transparent" />
         </div>
       </div>
+    );
+  }
+
+  if (node.type === "error") {
+    return (
+      <FlowNodeCard
+        icon={AlertCircle}
+        label="Error"
+        color="red"
+        content={
+          <p className="text-sm leading-relaxed font-medium whitespace-pre-wrap">
+            {node.content}
+          </p>
+        }
+      />
     );
   }
 

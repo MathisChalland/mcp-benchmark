@@ -199,6 +199,28 @@ export function useAgent({
         }),
       };
 
+      const reasoningContent =
+        assistantMessage.reasoning ||
+        assistantMessage.reasoningDetails
+          ?.map((detail) => {
+            if (detail.type === "reasoning.text" && detail.text) {
+              return detail.text;
+            }
+            if (detail.type === "reasoning.summary" && detail.summary) {
+              return detail.summary;
+            }
+            return null;
+          })
+          .filter(Boolean)
+          .join("\n");
+
+      if (reasoningContent) {
+        setFlow((prev) => [
+          ...prev,
+          { type: "reasoning", content: reasoningContent },
+        ]);
+      }
+
       if (
         newMessage.content &&
         typeof newMessage.content === "string" &&
@@ -236,8 +258,6 @@ export function useAgent({
 
       setResult(taskResult);
       setIsProcessing(false);
-
-      console.log("Task Result:", taskResult);
 
       return taskResult;
     },

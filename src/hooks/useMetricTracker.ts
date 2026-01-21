@@ -5,6 +5,7 @@ export interface TaskMetrics {
   totalTokens: number;
   promptTokens: number;
   completionTokens: number;
+  reasoningTokens: number;
   llmCalls: number;
   toolCalls: number;
   durationMs: number;
@@ -21,6 +22,7 @@ const initialMetrics: TaskMetrics = {
   totalTokens: 0,
   promptTokens: 0,
   completionTokens: 0,
+  reasoningTokens: 0,
   llmCalls: 0,
   toolCalls: 0,
   durationMs: 0,
@@ -45,6 +47,8 @@ export function useMetricTracker() {
   }, []);
 
   const recordLLMCall = useCallback((usage?: ChatGenerationTokenUsage) => {
+    const reasoningTokens =
+      usage?.completionTokensDetails?.reasoningTokens ?? 0;
     metricsRef.current = {
       ...metricsRef.current,
       llmCalls: metricsRef.current.llmCalls + 1,
@@ -53,6 +57,7 @@ export function useMetricTracker() {
         metricsRef.current.promptTokens + (usage?.promptTokens ?? 0),
       completionTokens:
         metricsRef.current.completionTokens + (usage?.completionTokens ?? 0),
+      reasoningTokens: metricsRef.current.reasoningTokens + reasoningTokens,
     };
     setMetrics(metricsRef.current);
   }, []);

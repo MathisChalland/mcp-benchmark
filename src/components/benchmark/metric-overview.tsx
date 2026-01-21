@@ -1,13 +1,20 @@
 import { Clock, Cpu, MessageSquare, Wrench, Zap } from "lucide-react";
 import type { TaskMetrics } from "@/hooks/useMetricTracker";
 import { cn } from "@/lib/utils";
+import type { LLMModelKey } from "@/components/benchmark/setup/llm-models";
+import { LLM_MODELS } from "@/components/benchmark/setup/llm-models";
 
 interface MetricOverviewProps {
   metrics: TaskMetrics | null;
   serverName?: string;
+  model?: LLMModelKey;
 }
 
-export function MetricOverview({ metrics, serverName }: MetricOverviewProps) {
+export function MetricOverview({
+  metrics,
+  serverName,
+  model = "openai/gpt-5-mini",
+}: MetricOverviewProps) {
   if (!metrics) {
     return null;
   }
@@ -19,6 +26,21 @@ export function MetricOverview({ metrics, serverName }: MetricOverviewProps) {
 
   const formatNumber = (num: number) => {
     return num.toLocaleString();
+  };
+
+  const calculateCost = () => {
+    const modelConfig = LLM_MODELS[model];
+    if (!modelConfig) return 0;
+
+    const inputCost =
+      (metrics.promptTokens / 1_000_000) * modelConfig.tokenCost.input;
+    const outputCost =
+      (metrics.completionTokens / 1_000_000) * modelConfig.tokenCost.output;
+    return (inputCost + outputCost) * 100;
+  };
+
+  const formatCost = (cents: number) => {
+    return `${cents.toFixed(2)}`;
   };
 
   return (
@@ -59,6 +81,16 @@ export function MetricOverview({ metrics, serverName }: MetricOverviewProps) {
           icon={Cpu}
           label="Completion Tokens"
           value={formatNumber(metrics.completionTokens)}
+        />
+        <MetricItem
+          icon={Cpu}
+          label="Reasoning Tokens"
+          value={formatNumber(metrics.reasoningTokens)}
+        />
+        <MetricItem
+          icon={Zap}
+          label="Cost in cents"
+          value={formatCost(calculateCost())}
         />
       </div>
     </div>
