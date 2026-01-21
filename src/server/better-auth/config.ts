@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
+import { APIError } from "better-auth/api";
 
 import { env } from "@/env";
 import { db } from "@/server/db";
@@ -9,6 +10,26 @@ export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql", // or "sqlite" or "mysql"
   }),
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          console.log(user);
+          const whitelisted = await db.whitelist.findUnique({
+            where: { email: user.email.toLowerCase() },
+          });
+
+          if (!whitelisted) {
+            throw new APIError("FORBIDDEN", {
+              message: "Email is not whitelisted for signup",
+            });
+          }
+
+          return { data: user };
+        },
+      },
+    },
+  },
   session: {
     cookieCache: {
       enabled: true,
@@ -21,7 +42,7 @@ export const auth = betterAuth({
     github: {
       clientId: env.BETTER_AUTH_GITHUB_CLIENT_ID,
       clientSecret: env.BETTER_AUTH_GITHUB_CLIENT_SECRET,
-      redirectURI: "http://localhost:3000/api/auth/callback/github",
+      redirectURI: `${env.BETTER_AUTH_URL}/api/auth/callback/github`,
     },
   },
   plugins: [nextCookies()],

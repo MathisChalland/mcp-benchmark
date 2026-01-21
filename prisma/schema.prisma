@@ -80,6 +80,13 @@ model Verification {
   @@map("verification")
 }
 
+model Whitelist {
+  id    String @id @default(uuid())
+  email String @unique
+
+  @@map("whitelist")
+}
+
 //============== Ecommerce ==============//
 
 model Customer {

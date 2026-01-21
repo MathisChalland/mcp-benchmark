@@ -1,25 +1,25 @@
 "use client";
 import { cn } from "@/lib/utils";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AsyncButton } from "@/components/basic-components/async-action-button";
 import { authClient } from "@/server/better-auth/client";
 import { Github } from "lucide-react";
+import { toast } from "sonner";
 
 export function LoginForm({ className }: { className?: string }) {
   const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams();
+
+  const error = searchParams.get("error");
 
   const signIn = async () => {
     setIsLoading(true);
     await authClient.signIn.social({
       provider: "github",
+      callbackURL: "/",
+      errorCallbackURL: "/login",
     });
   };
 
@@ -34,6 +34,7 @@ export function LoginForm({ className }: { className?: string }) {
         <Github />
         Continue with GitHub
       </AsyncButton>
+      {error && <div className="text-center text-sm text-red-600">{error}</div>}
     </div>
   );
 }
