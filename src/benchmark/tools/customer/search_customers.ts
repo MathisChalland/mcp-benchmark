@@ -119,8 +119,6 @@ export async function search_customers({
   >;
   hasMore: boolean;
 }> {
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
   const customersWithStats = await db.customer.findMany({
     where: {
       ...(searchTerm

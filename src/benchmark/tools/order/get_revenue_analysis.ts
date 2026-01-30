@@ -61,8 +61,6 @@ export async function get_revenue_analysis({
     averageOrderValue: number;
   }>;
 }> {
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
   const start = startDate ? new Date(startDate) : undefined;
   const end = endDate ? new Date(endDate) : undefined;
 

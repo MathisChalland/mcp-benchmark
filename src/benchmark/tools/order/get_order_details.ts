@@ -48,8 +48,6 @@ export async function get_order_details({
     }>;
   }
 > {
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
   const order = await db.order.findUnique({
     where: { id: orderId },
     include: {

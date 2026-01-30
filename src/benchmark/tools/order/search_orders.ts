@@ -109,8 +109,6 @@ export async function search_orders({
   }>;
   hasMore: boolean;
 }> {
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
   const whereClause: Prisma.OrderWhereInput = {};
 
   if (startDate || endDate) {

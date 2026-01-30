@@ -102,8 +102,6 @@ export async function search_products({
   products: Product[];
   hasMore: boolean;
 }> {
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
   const whereClause: Prisma.ProductWhereInput = {};
 
   if (searchTerm) {

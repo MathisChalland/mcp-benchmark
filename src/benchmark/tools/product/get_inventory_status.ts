@@ -92,8 +92,6 @@ export async function get_inventory_status({
   lowStockProductIds?: string[];
   inStockProductIds?: string[];
 }> {
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
   const allProducts = await db.product.findMany({
     select: {
       id: true,

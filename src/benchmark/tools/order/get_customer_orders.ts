@@ -36,7 +36,6 @@ export async function get_customer_orders({
   endDate?: string;
   status?: string;
 }): Promise<Order[]> {
-  await new Promise((resolve) => setTimeout(resolve, 100));
   const orders = await db.order.findMany({
     where: {
       customerId,

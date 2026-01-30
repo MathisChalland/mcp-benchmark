@@ -75,8 +75,6 @@ export async function get_product_stats({
     orderCount: number;
   }>
 > {
-  await new Promise((resolve) => setTimeout(resolve, 100));
-
   const orderWhere: Prisma.OrderItemWhereInput = {
     ...((startDate ?? endDate)
       ? {

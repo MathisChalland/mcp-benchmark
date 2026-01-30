@@ -37,7 +37,6 @@ export async function get_customer({
   customerId?: string;
   email?: string;
 }): Promise<Customer> {
-  await new Promise((resolve) => setTimeout(resolve, 100));
   const customer = await db.customer.findFirst({
     where: {
       OR: [customerId ? { id: customerId } : {}, email ? { email } : {}],
