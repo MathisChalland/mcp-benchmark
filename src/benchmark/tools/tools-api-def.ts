@@ -180,7 +180,5 @@ export function getSelectedToolsAPI(tools: string[]): string {
     );
   }
 
-  return `${INTERFACE_DEFINITIONS}
-
-${selectedDeclarations}`;
+  return `${selectedDeclarations}`;
 }

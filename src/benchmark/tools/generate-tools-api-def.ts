@@ -165,9 +165,7 @@ export function getSelectedToolsAPI(tools: string[]): string {
     throw new Error(\`No valid tools found. Available tools: \${AVAILABLE_TOOLS.join(", ")}\`);
   }
 
-  return \`\${INTERFACE_DEFINITIONS}
-
-\${selectedDeclarations}\`;
+  return \`\${selectedDeclarations}\`;
 }
 `;
 

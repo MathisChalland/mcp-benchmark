@@ -109,7 +109,7 @@ const handler = createMcpHandler(
     );
 
     server.registerTool(
-      "get_product_by_id",
+      "get_product",
       getProductToolDefinition,
       async (props) => {
         const output = await get_product(props);

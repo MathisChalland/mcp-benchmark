@@ -61,7 +61,7 @@ interface NodeCardProps {
   className?: string;
 }
 
-function FlowNodeCard({
+export function FlowNodeCard({
   icon: Icon,
   label,
   content,
@@ -73,7 +73,7 @@ function FlowNodeCard({
   return (
     <div
       className={cn(
-        "border-border bg-background overflow-hidden rounded-xl border",
+        "border-border bg-background flex h-full flex-col overflow-hidden rounded-xl border",
         className,
       )}
     >
@@ -89,7 +89,7 @@ function FlowNodeCard({
           {label}
         </span>
       </div>
-      <div className="p-4">{content}</div>
+      <div className="flex flex-1 flex-col p-4">{content}</div>
     </div>
   );
 }

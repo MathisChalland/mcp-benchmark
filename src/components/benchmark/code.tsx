@@ -1,15 +1,18 @@
 import { useShiki } from "@/contexts/ShikiContext";
+import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 
 interface CodeBlockProps {
   code: string;
   language?: string;
   maxHeight?: string;
+  className?: string;
 }
 export function CodeBlock({
   code,
   language = "json",
   maxHeight = "30rem",
+  className,
 }: CodeBlockProps) {
   const highlighter = useShiki();
 
@@ -37,7 +40,10 @@ export function CodeBlock({
   if (!html) {
     return (
       <pre
-        className={`bg-background/30 border-border w-full overflow-auto rounded-lg border p-3 font-mono text-[10px] text-zinc-400`}
+        className={cn(
+          "bg-background/30 border-border w-full overflow-auto rounded-lg border p-3 font-mono text-[10px] text-zinc-400",
+          className,
+        )}
         style={{ maxHeight }}
       >
         <code>{code}</code>
@@ -47,7 +53,10 @@ export function CodeBlock({
 
   return (
     <div
-      className="bg-muted/30 border-border w-full overflow-auto rounded-lg border p-3"
+      className={cn(
+        "bg-muted/30 border-border flex w-full flex-col overflow-auto rounded-lg border p-3",
+        className,
+      )}
       style={{ maxHeight }}
       dangerouslySetInnerHTML={{ __html: html }}
     />
