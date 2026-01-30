@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowUp, X } from "lucide-react";
 import { Configuration } from "./configuration";
 import { cn } from "@/lib/utils";
-import { tests } from "@/benchmark/test-cases";
+import { getGroupedTests } from "@/benchmark/test-cases";
 import { useTestSetup, type TestSetupResult } from "./useTestSetup";
 import { toast } from "sonner";
 
@@ -71,9 +71,12 @@ export function SetupBar({ setup, onSubmit }: SetupBarProps) {
         <div className="flex w-full">
           <div className="group flex">
             <Select
-              options={tests.map((test) => ({
-                label: test.id,
-                value: test.id,
+              groupedOptions={getGroupedTests().map((group) => ({
+                groupLabel: group.label,
+                options: group.tests.map((test) => ({
+                  label: test.id,
+                  value: test.id,
+                })),
               }))}
               selectedValue={selectedTestId ?? ""}
               onChange={selectTestCase}
