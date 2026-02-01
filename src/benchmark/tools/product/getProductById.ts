@@ -4,18 +4,8 @@ import { db } from "@/server/db";
 
 export const getProductSchema = {
   inputSchema: {
-    productId: z
-      .string()
-      .describe("The ID of the product to retrieve (price is in cents)"),
+    productId: z.string().describe("The ID of the product to retrieve"),
   },
-  // outputSchema: {
-  //   id: z.string(),
-  //   name: z.string(),
-  //   description: z.string(),
-  //   price: z.number(),
-  //   stock: z.number(),
-  //   createdAt: z.string().describe("ISO date string"),
-  // },
 };
 
 export const getProductToolDefinition = {
@@ -30,7 +20,7 @@ export const getProductToolDefinition = {
 export async function get_product({
   productId,
 }: {
-  productId: string;
+  productId: number;
 }): Promise<Product> {
   const product = await db.product.findUnique({
     where: {
@@ -42,8 +32,5 @@ export async function get_product({
     throw new Error(`Product with ID ${productId} not found`);
   }
 
-  return {
-    ...product,
-    createdAt: product.createdAt.toISOString(),
-  };
+  return product;
 }

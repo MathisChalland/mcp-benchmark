@@ -1,12 +1,6 @@
-/**
- * Creates a Prisma OR clause for searching across multiple fields with case-insensitive matching
- * @param searchTerm - The term to search for
- * @param fields - Array of field names to search across
- * @returns Prisma where clause object or empty object if no search term
- */
 export function createSearchClause<T extends string>(
-  searchTerm: string | undefined,
   fields: T[],
+  searchTerm: string | undefined,
 ): Record<string, unknown> {
   if (!searchTerm) {
     return {};
@@ -17,12 +11,6 @@ export function createSearchClause<T extends string>(
   };
 }
 
-/**
- * Creates a Prisma field filter for case-insensitive text matching
- * @param fieldName - The field name to filter on
- * @param value - The value to match
- * @returns Prisma where clause object or empty object if no value
- */
 export function createTextFilter<T extends string>(
   fieldName: T,
   value: string | undefined,
@@ -37,4 +25,46 @@ export function createTextFilter<T extends string>(
       mode: "insensitive" as const,
     },
   };
+}
+
+export function createRangeFilter<T extends string>(
+  fieldName: T,
+  min?: number | Date,
+  max?: number | Date,
+): Record<string, unknown> {
+  if (min === undefined && max === undefined) {
+    return {};
+  }
+
+  const rangeFilter: Record<string, number | Date> = {};
+  if (min !== undefined) rangeFilter.gte = min;
+  if (max !== undefined) rangeFilter.lte = max;
+
+  return {
+    [fieldName]: rangeFilter,
+  };
+}
+
+export function createExactFilter<T extends string>(
+  fieldName: T,
+  value: string | number | boolean | null | undefined,
+): Record<string, unknown> {
+  if (value === undefined) {
+    return {};
+  }
+
+  return {
+    [fieldName]: value,
+  };
+}
+
+export function combineFilters(
+  ...filters: Record<string, unknown>[]
+): Record<string, unknown> {
+  return filters.reduce((acc, filter) => {
+    if (Object.keys(filter).length > 0) {
+      Object.assign(acc, filter);
+    }
+    return acc;
+  }, {});
 }

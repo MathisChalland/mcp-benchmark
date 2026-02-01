@@ -1,5 +1,9 @@
 import { db } from "@/server/db";
-import { createSearchClause, createTextFilter } from "@/lib/db-helpers";
+import {
+  createSearchClause,
+  createTextFilter,
+  combineFilters,
+} from "@/lib/db-helpers";
 import { z } from "zod";
 import type { Customer } from "../types";
 
@@ -85,17 +89,15 @@ export async function getManyCustomers({
   customers: Array<Customer>;
   hasMore: boolean;
 }> {
-  const where = {
-    ...createSearchClause(searchTerm, [
-      "companyName",
-      "contactName",
-      "city",
-      "country",
-    ]),
-    ...createTextFilter("city", city),
-    ...createTextFilter("country", country),
-    ...createTextFilter("region", region),
-  };
+  const where = combineFilters(
+    createSearchClause(
+      ["companyName", "contactName", "city", "country"],
+      searchTerm,
+    ),
+    createTextFilter("city", city),
+    createTextFilter("country", country),
+    createTextFilter("region", region),
+  );
 
   const customers = await db.customer.findMany({
     where,
