@@ -46,7 +46,6 @@ export interface Category {
   id: number;
   name: string;
   description: string | null;
-  picture: Buffer | null;
 }
 
 export interface Employee {
@@ -64,7 +63,6 @@ export interface Employee {
   country: string | null;
   homePhone: string | null;
   extension: string | null;
-  photo: Buffer | null;
   notes: string | null;
   reportsToId: number | null;
   photoPath: string | null;
