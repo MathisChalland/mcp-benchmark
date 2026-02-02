@@ -21,6 +21,7 @@ export const getOrderTotalToolDefinition = {
  * Formula: sum of (unitPrice * quantity * (1 - discount)) + freight
  */
 export async function getOrderTotal({ orderId }: { orderId: number }): Promise<{
+  orderId: number;
   subtotal: number;
   totalDiscount: number;
   freight: number;
@@ -54,6 +55,7 @@ export async function getOrderTotal({ orderId }: { orderId: number }): Promise<{
   const total = subtotal - totalDiscount + freight;
 
   return {
+    orderId,
     subtotal: Math.round(subtotal * 100) / 100,
     totalDiscount: Math.round(totalDiscount * 100) / 100,
     freight: Math.round(freight * 100) / 100,
