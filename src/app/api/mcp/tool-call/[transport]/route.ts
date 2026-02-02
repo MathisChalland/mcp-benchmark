@@ -79,28 +79,6 @@ import {
 const handler = createMcpHandler(
   (server) => {
     server.registerTool(
-      "get_all_categories",
-      getAllCategoriesToolDefinition,
-      async () => {
-        const categories = await getAllCategories();
-        return {
-          content: [{ type: "text", text: JSON.stringify(categories) }],
-        };
-      },
-    );
-
-    server.registerTool(
-      "get_category_by_id",
-      getCategoryByIdToolDefinition,
-      async (props) => {
-        const category = await getCategoryById(props);
-        return {
-          content: [{ type: "text", text: JSON.stringify(category) }],
-        };
-      },
-    );
-
-    server.registerTool(
       "get_customer_by_id",
       getCustomerToolDefinition,
       async (props) => {
@@ -123,23 +101,34 @@ const handler = createMcpHandler(
     );
 
     server.registerTool(
-      "get_employee_by_id",
-      getEmployeeByIdToolDefinition,
+      "get_many_products",
+      searchProductsToolDefinition,
       async (props) => {
-        const employee = await getEmployeeById(props);
+        const products = await getManyProducts(props);
         return {
-          content: [{ type: "text", text: JSON.stringify(employee) }],
+          content: [{ type: "text", text: JSON.stringify(products) }],
         };
       },
     );
 
     server.registerTool(
-      "get_many_employees",
-      getManyEmployeesToolDefinition,
+      "get_product_by_id",
+      getProductToolDefinition,
       async (props) => {
-        const employees = await getManyEmployees(props);
+        const product = await getProductById(props);
         return {
-          content: [{ type: "text", text: JSON.stringify(employees) }],
+          content: [{ type: "text", text: JSON.stringify(product) }],
+        };
+      },
+    );
+
+    server.registerTool(
+      "get_product_sales",
+      getProductSalesToolDefinition,
+      async (props) => {
+        const sales = await getProductSales(props);
+        return {
+          content: [{ type: "text", text: JSON.stringify(sales) }],
         };
       },
     );
@@ -189,34 +178,45 @@ const handler = createMcpHandler(
     );
 
     server.registerTool(
-      "get_many_products",
-      searchProductsToolDefinition,
+      "get_employee_by_id",
+      getEmployeeByIdToolDefinition,
       async (props) => {
-        const products = await getManyProducts(props);
+        const employee = await getEmployeeById(props);
         return {
-          content: [{ type: "text", text: JSON.stringify(products) }],
+          content: [{ type: "text", text: JSON.stringify(employee) }],
         };
       },
     );
 
     server.registerTool(
-      "get_product_by_id",
-      getProductToolDefinition,
+      "get_many_employees",
+      getManyEmployeesToolDefinition,
       async (props) => {
-        const product = await getProductById(props);
+        const employees = await getManyEmployees(props);
         return {
-          content: [{ type: "text", text: JSON.stringify(product) }],
+          content: [{ type: "text", text: JSON.stringify(employees) }],
         };
       },
     );
 
     server.registerTool(
-      "get_product_sales",
-      getProductSalesToolDefinition,
+      "get_many_suppliers",
+      getManySuppliersToolDefinition,
       async (props) => {
-        const sales = await getProductSales(props);
+        const suppliers = await getManySuppliers(props);
         return {
-          content: [{ type: "text", text: JSON.stringify(sales) }],
+          content: [{ type: "text", text: JSON.stringify(suppliers) }],
+        };
+      },
+    );
+
+    server.registerTool(
+      "get_supplier_by_id",
+      getSupplierByIdToolDefinition,
+      async (props) => {
+        const supplier = await getSupplierById(props);
+        return {
+          content: [{ type: "text", text: JSON.stringify(supplier) }],
         };
       },
     );
@@ -244,23 +244,23 @@ const handler = createMcpHandler(
     );
 
     server.registerTool(
-      "get_many_suppliers",
-      getManySuppliersToolDefinition,
-      async (props) => {
-        const suppliers = await getManySuppliers(props);
+      "get_all_categories",
+      getAllCategoriesToolDefinition,
+      async () => {
+        const categories = await getAllCategories();
         return {
-          content: [{ type: "text", text: JSON.stringify(suppliers) }],
+          content: [{ type: "text", text: JSON.stringify(categories) }],
         };
       },
     );
 
     server.registerTool(
-      "get_supplier_by_id",
-      getSupplierByIdToolDefinition,
+      "get_category_by_id",
+      getCategoryByIdToolDefinition,
       async (props) => {
-        const supplier = await getSupplierById(props);
+        const category = await getCategoryById(props);
         return {
-          content: [{ type: "text", text: JSON.stringify(supplier) }],
+          content: [{ type: "text", text: JSON.stringify(category) }],
         };
       },
     );

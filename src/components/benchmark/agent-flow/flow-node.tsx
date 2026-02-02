@@ -51,7 +51,7 @@ const flowNodeStyles = {
   },
 } as const;
 
-type FlowNodeColor = keyof typeof flowNodeStyles;
+export type FlowNodeColor = keyof typeof flowNodeStyles;
 
 interface NodeCardProps {
   icon: React.ComponentType<{ className?: string }>;
