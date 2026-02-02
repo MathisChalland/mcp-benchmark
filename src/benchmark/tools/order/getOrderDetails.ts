@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { OrderDetail, Product } from "../types";
+import type { OrderDetail, Product } from "../../code-approach/types";
 import { db } from "@/server/db";
 
 export const getOrderDetailsSchema = {

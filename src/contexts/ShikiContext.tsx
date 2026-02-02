@@ -5,7 +5,6 @@ import type { HighlighterCore } from "shiki/core";
 import { createHighlighterCore } from "shiki/core";
 import { createOnigurumaEngine } from "shiki/engine/oniguruma";
 
-// Fine-grained imports - nur die Themes und Sprachen die du brauchst
 import githubDark from "@shikijs/themes/github-dark";
 import githubLight from "@shikijs/themes/github-light";
 import javascript from "@shikijs/langs/javascript";

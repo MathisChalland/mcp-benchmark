@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db } from "@/server/db";
-import type { Category } from "../types";
+import type { Category } from "../../code-approach/types";
 
 export const getCategoryByIdSchema = {
   inputSchema: {

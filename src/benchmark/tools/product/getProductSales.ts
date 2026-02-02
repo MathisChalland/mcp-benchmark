@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { db } from "@/server/db";
 import { createWhereClauseBuilder } from "@/lib/db-helpers";
-import type { Order, Product } from "../types";
+import type { Order, Product } from "../../code-approach/types";
 
 export const getProductSalesSchema = {
   inputSchema: {

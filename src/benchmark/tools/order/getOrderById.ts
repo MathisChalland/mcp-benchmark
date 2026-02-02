@@ -1,5 +1,10 @@
 import { z } from "zod";
-import type { Order, OrderDetail, Customer, Employee } from "../types";
+import type {
+  Order,
+  OrderDetail,
+  Customer,
+  Employee,
+} from "../../code-approach/types";
 import { db } from "@/server/db";
 
 export const getOrderByIdSchema = {

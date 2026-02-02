@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { db } from "@/server/db";
 import { createWhereClauseBuilder } from "@/lib/db-helpers";
-import type { Order } from "../types";
+import type { Order } from "../../code-approach/types";
 
 export const getManyOrdersSchema = {
   inputSchema: {

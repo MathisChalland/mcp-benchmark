@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Product } from "../types";
+import type { Product } from "../../code-approach/types";
 import { db } from "@/server/db";
 import { createWhereClauseBuilder } from "@/lib/db-helpers";
 
@@ -102,7 +102,7 @@ const w = createWhereClauseBuilder<Product>();
 /**
  * Search and filter products from the database with sorting and pagination
  */
-export async function search_products({
+export async function getManyProducts({
   searchTerm,
   categoryId,
   supplierId,

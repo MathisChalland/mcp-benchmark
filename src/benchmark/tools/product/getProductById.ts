@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Product } from "../types";
+import type { Product } from "../../code-approach/types";
 import { db } from "@/server/db";
 
 export const getProductSchema = {
@@ -17,7 +17,7 @@ export const getProductToolDefinition = {
 /**
  * Retrieves a product by its ID from the database
  */
-export async function get_product({
+export async function getProductById({
   productId,
 }: {
   productId: number;

@@ -1,5 +1,5 @@
 import { db } from "@/server/db";
-import type { Shipper } from "../types";
+import type { Shipper } from "../../code-approach/types";
 
 export const getAllShippersSchema = {
   inputSchema: {},

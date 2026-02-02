@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db } from "@/server/db";
-import type { Employee } from "../types";
+import type { Employee } from "../../code-approach/types";
 import { createWhereClauseBuilder } from "@/lib/db-helpers";
 
 export const getManyEmployeesSchema = {

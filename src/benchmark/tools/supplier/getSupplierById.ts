@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db } from "@/server/db";
-import type { Supplier } from "../types";
+import type { Supplier } from "../../code-approach/types";
 
 export const getSupplierByIdSchema = {
   inputSchema: {
