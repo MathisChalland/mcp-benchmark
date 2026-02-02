@@ -1,5 +1,5 @@
-export function createSearchClause<T extends string>(
-  fields: T[],
+function createSearchClause<T>(
+  fields: (keyof T)[],
   searchTerm: string | undefined,
 ): Record<string, unknown> {
   if (!searchTerm) {
@@ -11,8 +11,8 @@ export function createSearchClause<T extends string>(
   };
 }
 
-export function createTextFilter<T extends string>(
-  fieldName: T,
+function createTextFilter<T>(
+  fieldName: keyof T,
   value: string | undefined,
 ): Record<string, unknown> {
   if (!value) {
@@ -27,8 +27,8 @@ export function createTextFilter<T extends string>(
   };
 }
 
-export function createRangeFilter<T extends string>(
-  fieldName: T,
+function createRangeFilter<T>(
+  fieldName: keyof T,
   min?: number | Date,
   max?: number | Date,
 ): Record<string, unknown> {
@@ -45,8 +45,8 @@ export function createRangeFilter<T extends string>(
   };
 }
 
-export function createExactFilter<T extends string>(
-  fieldName: T,
+function createExactFilter<T>(
+  fieldName: keyof T,
   value: string | number | boolean | null | undefined,
 ): Record<string, unknown> {
   if (value === undefined) {
@@ -58,7 +58,7 @@ export function createExactFilter<T extends string>(
   };
 }
 
-export function combineFilters(
+function combineFilters(
   ...filters: Record<string, unknown>[]
 ): Record<string, unknown> {
   return filters.reduce((acc, filter) => {
@@ -67,4 +67,20 @@ export function combineFilters(
     }
     return acc;
   }, {});
+}
+
+export function createWhereClauseBuilder<T>() {
+  return {
+    search: (fields: (keyof T)[], searchTerm: string | undefined) =>
+      createSearchClause<T>(fields, searchTerm),
+    text: (fieldName: keyof T, value: string | undefined) =>
+      createTextFilter<T>(fieldName, value),
+    range: (fieldName: keyof T, min?: number | Date, max?: number | Date) =>
+      createRangeFilter<T>(fieldName, min, max),
+    exact: (
+      fieldName: keyof T,
+      value: string | number | boolean | null | undefined,
+    ) => createExactFilter<T>(fieldName, value),
+    combine: combineFilters,
+  };
 }

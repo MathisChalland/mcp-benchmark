@@ -1,9 +1,5 @@
 import { db } from "@/server/db";
-import {
-  createSearchClause,
-  createTextFilter,
-  combineFilters,
-} from "@/lib/db-helpers";
+import { createWhereClauseBuilder } from "@/lib/db-helpers";
 import { z } from "zod";
 import type { Customer } from "../types";
 
@@ -58,6 +54,8 @@ export const searchCustomersToolDefinition = {
   ...searchCustomersSchema,
 };
 
+const w = createWhereClauseBuilder<Customer>();
+
 /**
  * Search and filter customers from the database with sorting and pagination
  */
@@ -89,14 +87,11 @@ export async function getManyCustomers({
   customers: Array<Customer>;
   hasMore: boolean;
 }> {
-  const where = combineFilters(
-    createSearchClause(
-      ["companyName", "contactName", "city", "country"],
-      searchTerm,
-    ),
-    createTextFilter("city", city),
-    createTextFilter("country", country),
-    createTextFilter("region", region),
+  const where = w.combine(
+    w.search(["companyName", "contactName", "city", "country"], searchTerm),
+    w.exact("city", city),
+    w.exact("country", country),
+    w.exact("region", region),
   );
 
   const customers = await db.customer.findMany({

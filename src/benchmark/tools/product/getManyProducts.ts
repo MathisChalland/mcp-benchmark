@@ -1,12 +1,7 @@
 import { z } from "zod";
 import type { Product } from "../types";
 import { db } from "@/server/db";
-import {
-  createTextFilter,
-  createExactFilter,
-  createRangeFilter,
-  combineFilters,
-} from "@/lib/db-helpers";
+import { createWhereClauseBuilder } from "@/lib/db-helpers";
 
 export const searchProductsSchema = {
   inputSchema: {
@@ -102,6 +97,8 @@ export const searchProductsToolDefinition = {
   ...searchProductsSchema,
 };
 
+const w = createWhereClauseBuilder<Product>();
+
 /**
  * Search and filter products from the database with sorting and pagination
  */
@@ -150,20 +147,20 @@ export async function search_products({
   products: Product[];
   hasMore: boolean;
 }> {
-  const whereClause = combineFilters(
-    createTextFilter("name", searchTerm),
-    createExactFilter("categoryId", categoryId),
-    createExactFilter("supplierId", supplierId),
-    createExactFilter("discontinued", discontinued),
-    createRangeFilter("unitPrice", minPrice, maxPrice),
-    createRangeFilter("unitsInStock", minStock, maxStock),
-    createRangeFilter("unitsOnOrder", minUnitsOnOrder, maxUnitsOnOrder),
-    createRangeFilter("reorderLevel", minReorderLevel, maxReorderLevel),
+  const where = w.combine(
+    w.search(["name"], searchTerm),
+    w.exact("categoryId", categoryId),
+    w.exact("supplierId", supplierId),
+    w.exact("discontinued", discontinued),
+    w.range("unitPrice", minPrice, maxPrice),
+    w.range("unitsInStock", minStock, maxStock),
+    w.range("unitsOnOrder", minUnitsOnOrder, maxUnitsOnOrder),
+    w.range("reorderLevel", minReorderLevel, maxReorderLevel),
   );
 
   // Fetch one more than limit to determine if there are more results
   const products = await db.product.findMany({
-    where: whereClause,
+    where,
     orderBy: { [sortBy]: sortOrder },
     take: limit + 1,
     skip: offset,
