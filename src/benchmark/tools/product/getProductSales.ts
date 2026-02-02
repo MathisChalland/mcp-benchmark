@@ -7,7 +7,6 @@ export const getProductSalesSchema = {
   inputSchema: {
     productId: z
       .number()
-      .int()
       .describe("The ID of the product to get sales data for"),
     startDate: z
       .string()

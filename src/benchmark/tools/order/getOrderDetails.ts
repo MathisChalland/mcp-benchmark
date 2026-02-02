@@ -4,10 +4,7 @@ import { db } from "@/server/db";
 
 export const getOrderDetailsSchema = {
   inputSchema: {
-    orderId: z
-      .number()
-      .int()
-      .describe("The ID of the order to retrieve details for"),
+    orderId: z.number().describe("The ID of the order to retrieve details for"),
     includeProduct: z
       .boolean()
       .optional()

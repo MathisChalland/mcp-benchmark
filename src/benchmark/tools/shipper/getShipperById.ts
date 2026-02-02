@@ -4,7 +4,7 @@ import type { Shipper } from "../../code-approach/types";
 
 export const getShipperByIdSchema = {
   inputSchema: {
-    shipperId: z.string().describe("The ID of the shipper to retrieve"),
+    shipperId: z.number().describe("The ID of the shipper to retrieve"),
   },
 };
 

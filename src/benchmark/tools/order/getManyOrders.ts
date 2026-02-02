@@ -40,8 +40,8 @@ export const getManyOrdersSchema = {
         "Filter orders shipped on or before this date (ISO date string)",
       ),
     customerId: z.string().optional().describe("Filter by customer ID"),
-    employeeId: z.number().int().optional().describe("Filter by employee ID"),
-    shipVia: z.number().int().optional().describe("Filter by shipper ID"),
+    employeeId: z.number().optional().describe("Filter by employee ID"),
+    shipVia: z.number().optional().describe("Filter by shipper ID"),
     minFreight: z
       .number()
       .min(0)

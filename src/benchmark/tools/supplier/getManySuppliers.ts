@@ -45,7 +45,7 @@ export const getManySuppliersToolDefinition = {
   title: "Get Many Suppliers",
   description:
     "Retrieve multiple suppliers from the database with optional filtering, sorting, and pagination",
-  ...getManySuppliers,
+  ...getManySuppliersSchema,
 };
 
 const w = createWhereClauseBuilder<Supplier>();

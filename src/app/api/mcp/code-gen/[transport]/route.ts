@@ -1,10 +1,10 @@
+import { createMcpHandler, withMcpAuth } from "mcp-handler";
+import { verifyMcpToken } from "../../verify-token";
 import {
   execute_code,
   executeCodeSchema,
-} from "@/benchmark/tools/execute_code";
-import { getToolsAPI } from "@/benchmark/tools/tools-api-def";
-import { createMcpHandler, withMcpAuth } from "mcp-handler";
-import { verifyMcpToken } from "../../verify-token";
+} from "@/benchmark/code-approach/execute_code";
+import { getToolsAPI } from "@/benchmark/code-approach/api";
 
 const handler = createMcpHandler(
   (server) => {
@@ -19,14 +19,16 @@ Write your code as if you are already inside an async function body.
 
 WRONG - Do not do this:
 async function main() {
-  const customer = await getCustomer({ customerId: 1 });
-  return customer;
+  const product = await getProductById({ productId: 1 });
+  const supplier = await getSupplierById({ supplierId: product.supplierId });
+  return { productName: product.name, supplierName: supplier.companyName };
 }
 main();
 
 CORRECT - Write code directly like this:
-const customer = await getCustomer({ customerId: 1 });
-return customer;
+const product = await getProductById({ productId: 1 });
+const supplier = await getSupplierById({ supplierId: product.supplierId });
+return { productName: product.name, supplierName: supplier.companyName };
 
 Your code can use await directly and must end with a return statement containing the final result.
 

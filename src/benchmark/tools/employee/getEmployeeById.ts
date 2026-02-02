@@ -4,7 +4,7 @@ import type { Employee } from "../../code-approach/types";
 
 export const getEmployeeByIdSchema = {
   inputSchema: {
-    employeeId: z.string().describe("The ID of the employee to retrieve"),
+    employeeId: z.number().describe("The ID of the employee to retrieve"),
   },
 };
 

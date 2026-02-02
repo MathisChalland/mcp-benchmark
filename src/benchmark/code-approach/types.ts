@@ -42,12 +42,6 @@ export interface Order {
   shipCountry: string | null;
 }
 
-export interface Category {
-  id: number;
-  name: string;
-  description: string | null;
-}
-
 export interface Employee {
   id: number;
   lastName: string;
@@ -95,6 +89,12 @@ export interface Shipper {
   id: number;
   companyName: string;
   phone: string | null;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  description: string | null;
 }
 
 export interface Region {

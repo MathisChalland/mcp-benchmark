@@ -9,11 +9,10 @@ export const searchProductsSchema = {
       .string()
       .optional()
       .describe("Search term to match against product name"),
-    categoryId: z.number().int().optional().describe("Filter by category ID"),
-    supplierId: z.number().int().optional().describe("Filter by supplier ID"),
+    categoryId: z.number().optional().describe("Filter by category ID"),
+    supplierId: z.number().optional().describe("Filter by supplier ID"),
     discontinued: z
       .number()
-      .int()
       .optional()
       .describe("Filter by discontinued status (0 or 1)"),
     minPrice: z

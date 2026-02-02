@@ -43,11 +43,6 @@ export const INTERFACE_DEFINITIONS: Record<string, string> = {
   shipPostalCode: string | null;
   shipCountry: string | null;
 }`,
-  Category: `interface Category {
-  id: number;
-  name: string;
-  description: string | null;
-}`,
   Employee: `interface Employee {
   id: number;
   lastName: string;
@@ -92,6 +87,11 @@ export const INTERFACE_DEFINITIONS: Record<string, string> = {
   id: number;
   companyName: string;
   phone: string | null;
+}`,
+  Category: `interface Category {
+  id: number;
+  name: string;
+  description: string | null;
 }`,
   Region: `interface Region {
   id: number;

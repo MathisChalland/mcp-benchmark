@@ -9,7 +9,7 @@ import { db } from "@/server/db";
 
 export const getOrderByIdSchema = {
   inputSchema: {
-    orderId: z.number().int().describe("The ID of the order to retrieve"),
+    orderId: z.number().describe("The ID of the order to retrieve"),
     includeDetails: z
       .boolean()
       .optional()

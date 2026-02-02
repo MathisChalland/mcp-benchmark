@@ -4,7 +4,7 @@ import type { Supplier } from "../../code-approach/types";
 
 export const getSupplierByIdSchema = {
   inputSchema: {
-    supplierId: z.string().describe("The ID of the supplier to retrieve"),
+    supplierId: z.number().describe("The ID of the supplier to retrieve"),
   },
 };
 

@@ -5,7 +5,6 @@ export const getOrderTotalSchema = {
   inputSchema: {
     orderId: z
       .number()
-      .int()
       .describe("The ID of the order to calculate the total for"),
   },
 };

@@ -4,7 +4,7 @@ import type { Category } from "../../code-approach/types";
 
 export const getCategoryByIdSchema = {
   inputSchema: {
-    categoryId: z.string().describe("The ID of the category to retrieve"),
+    categoryId: z.number().describe("The ID of the category to retrieve"),
   },
 };
 

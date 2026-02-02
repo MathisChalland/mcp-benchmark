@@ -16,7 +16,6 @@ export const getManyEmployeesSchema = {
     country: z.string().optional().describe("Filter by country"),
     reportsToId: z
       .number()
-      .int()
       .optional()
       .describe("Filter by reports to employee ID"),
     minHireDate: z
