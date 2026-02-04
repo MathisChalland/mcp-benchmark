@@ -1,4 +1,5 @@
 import type { ToolContent } from "@/app/api/mcp/types";
+import { Client } from "@modelcontextprotocol/sdk/client";
 import type {
   ChatCompletionMessageFunctionToolCall,
   ChatCompletionMessageParam,
@@ -6,21 +7,20 @@ import type {
 
 interface Params {
   toolCalls: ChatCompletionMessageFunctionToolCall[];
-  caller: Caller;
+  caller: ToolCaller;
   onToolResult?: (
     toolCall: ChatCompletionMessageFunctionToolCall,
     result: ToolCallResult,
   ) => void;
 }
 
-type Caller = (
-  toolName: string,
-  args?: Record<string, unknown>,
-) => Promise<{ content: ToolContent[] }>;
+type TCaller = Client["callTool"];
 
-interface ToolCallResult {
-  result: string;
-  error?: boolean;
+export type ToolCaller = Client["callTool"];
+
+export interface ToolCallResult {
+  content: string;
+  isError: boolean;
 }
 
 export async function executeToolCalls({
@@ -33,9 +33,9 @@ export async function executeToolCalls({
       const result = await executeToolCall(tc, caller);
       onToolResult?.(tc, result);
       return {
-        role: "tool",
+        role: "tool" as const,
         tool_call_id: tc.id,
-        content: result.result,
+        content: result.content,
       };
     }),
   );
@@ -43,21 +43,30 @@ export async function executeToolCalls({
 
 async function executeToolCall(
   toolCall: ChatCompletionMessageFunctionToolCall,
-  caller: Caller,
+  caller: ToolCaller,
 ): Promise<ToolCallResult> {
   try {
     const args = JSON.parse(toolCall.function.arguments) as Record<
       string,
       unknown
     >;
-    const result = await caller(toolCall.function.name, args);
-    const resultText = extractTextFromToolResult(result.content);
-    return { result: resultText };
-  } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : String(err);
+    const response = await caller({
+      name: toolCall.function.name,
+      arguments: args,
+    });
+
+    const content = extractTextFromToolResult(
+      response.content as ToolContent[],
+    );
+
     return {
-      result: `Error calling ${toolCall.function.name}: ${errorMsg}`,
-      error: true,
+      content,
+      isError: (response.isError as boolean) ?? false,
+    };
+  } catch (err) {
+    return {
+      content: err instanceof Error ? err.message : String(err),
+      isError: true,
     };
   }
 }

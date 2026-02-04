@@ -4,17 +4,19 @@ import type {
   ChatCompletionMessageFunctionToolCall,
   ChatCompletionMessageParam,
 } from "openai/resources";
-import { extractTokenUsage, type LLMCallMetrics } from "./metric-tracker";
+import { extractTokenUsage, type LLMMetrics } from "./metric-tracker";
 
 interface Input {
-  caller: typeof executeLLMCall;
+  caller: LLMCaller;
   params: CallLLMInput;
 }
 
-export interface CallLLMResult {
+export type LLMCaller = typeof executeLLMCall;
+
+export interface LLMCallResult {
   response: string | null;
   reasoning: string | null;
-  metrics: LLMCallMetrics;
+  metrics: LLMMetrics;
   toolCalls: ChatCompletionMessageFunctionToolCall[] | null;
   newMessage: ChatCompletionMessageParam;
 }
@@ -22,7 +24,7 @@ export interface CallLLMResult {
 export async function callLLM({
   caller,
   params,
-}: Input): Promise<CallLLMResult> {
+}: Input): Promise<LLMCallResult> {
   const start = Date.now();
   const response = await caller(params);
   const durationMs = Date.now() - start;
