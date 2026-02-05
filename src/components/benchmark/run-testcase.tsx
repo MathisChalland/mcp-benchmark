@@ -1,8 +1,8 @@
 import type { TestSetupResult } from "./setup/useTestSetup";
-import { useState } from "react";
+import { forwardRef, useCallback, useRef, useState, type Ref } from "react";
 import { FlowNode } from "./agent-flow/flow-node";
-import { Agent } from "./agent";
-import { Bot, Loader2, RotateCcw } from "lucide-react";
+import { Agent, type AgentHandle } from "./agent";
+import { Bot, Loader2, RotateCcw, Square } from "lucide-react";
 import { Button } from "../ui/button";
 import { MetricOverview } from "./metric-overview";
 import type { TaskMetrics } from "@/benchmark/agent/metric-tracker";
@@ -20,6 +20,8 @@ interface Props {
 export function RunTestcase({ setup, onNewSetup }: Props) {
   const mcpClients = useMcpClients();
   const [metrics, setMetrics] = useState<Record<string, TaskMetrics>>({});
+  const [isStopping, setIsStopping] = useState(false);
+  const agentRefs = useRef<Record<string, AgentHandle | null>>({});
 
   const AGENTS = Object.entries(setup.config.mcpServer)
     .filter(([, enabled]) => enabled)
@@ -29,12 +31,24 @@ export function RunTestcase({ setup, onNewSetup }: Props) {
     });
 
   const isFinished = AGENTS.every(({ key }) => metrics[key]?.finished);
+  const isRunning = !isFinished && mcpClients.isConnected;
   const onBack = () => onNewSetup?.(undefined);
   const onRerun = () => onNewSetup?.(setup);
+  const onStop = useCallback(() => {
+    setIsStopping(true);
+    Object.values(agentRefs.current).forEach((agent) => agent?.cancel());
+  }, []);
 
   return (
     <div className="bg-muted max-h-dvh w-full">
-      <HeaderBar isFinished={isFinished} onBack={onBack} onRerun={onRerun} />
+      <HeaderBar
+        isFinished={isFinished}
+        isRunning={isRunning}
+        isStopping={isStopping}
+        onBack={onBack}
+        onRerun={onRerun}
+        onStop={onStop}
+      />
       <div className="max-h-dvh overflow-auto pt-16 pb-40">
         <div className="mx-auto max-w-4xl px-6 pt-8">
           <FlowNode node={{ type: "request", content: setup.prompt }} />
@@ -55,6 +69,9 @@ export function RunTestcase({ setup, onNewSetup }: Props) {
               {AGENTS.map(({ key, name }) => (
                 <AgentColumn
                   key={key}
+                  ref={(handle) => {
+                    agentRefs.current[key] = handle;
+                  }}
                   mcpClient={mcpClients[key]}
                   setup={setup}
                   serverName={name}
@@ -78,16 +95,19 @@ function AgentColumn({
   serverName,
   metrics,
   onComplete,
+  ref,
 }: {
   mcpClient: McpClientType;
   setup: TestSetupResult;
   serverName: string;
   metrics?: TaskMetrics;
   onComplete: (metrics: TaskMetrics) => void;
+  ref: Ref<AgentHandle | null>;
 }) {
   return (
     <div className="sticky top-0 mx-auto flex w-full max-w-4xl flex-col gap-8 px-6">
       <Agent
+        ref={ref}
         mcpClient={mcpClient}
         setup={setup}
         agentType={serverName}
@@ -109,12 +129,18 @@ function AgentColumn({
 
 function HeaderBar({
   isFinished,
+  isRunning,
+  isStopping,
   onBack,
   onRerun,
+  onStop,
 }: {
   onBack?: () => void;
   isFinished?: boolean;
+  isRunning?: boolean;
+  isStopping?: boolean;
   onRerun?: () => void;
+  onStop?: () => void;
 }) {
   return (
     <header className="border-border bg-muted/40 absolute top-0 z-50 w-full border-b backdrop-blur-lg">
@@ -129,6 +155,21 @@ function HeaderBar({
             Agent playground & benchmark
           </h1>
         </Button>
+        {isRunning && (
+          <Button
+            variant="outline"
+            onClick={onStop}
+            disabled={isStopping}
+            className="ml-auto"
+          >
+            {isStopping ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : (
+              <Square className="size-4" />
+            )}
+            Cancel
+          </Button>
+        )}
         {isFinished && (
           <Button variant="outline" onClick={onRerun} className="ml-auto">
             <RotateCcw /> Rerun test case
