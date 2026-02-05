@@ -16,11 +16,40 @@ import { getAllShippers } from "../tools/shipper/getAllShippers";
 import { getOrderDetails } from "../tools/order/getOrderDetails";
 import { getCategoryById } from "../tools/category/getCategoryById";
 import { getAllCategories } from "../tools/category/getAllCategories";
+import { getToolsAPI } from "./api";
 
 export const executeCodeSchema = {
   inputSchema: {
     code: z.string().describe("JavaScript code to execute"),
   },
+};
+
+export const executeCodeToolDefinition = {
+  title: "Execute Code",
+  description: `Execute JavaScript code to solve the given task.
+  
+  IMPORTANT: Your code is executed directly as the body of an async function - do NOT wrap it in another function.
+  Write your code as if you are already inside an async function body.
+  
+  WRONG - Do not do this:
+  async function main() {
+    const product = await getProductById({ productId: 1 });
+    const supplier = await getSupplierById({ supplierId: product.supplierId });
+    return { productName: product.name, supplierName: supplier.companyName };
+  }
+  main();
+  
+  CORRECT - Write code directly like this:
+  const product = await getProductById({ productId: 1 });
+  const supplier = await getSupplierById({ supplierId: product.supplierId });
+  return { productName: product.name, supplierName: supplier.companyName };
+  
+  Your code can use await directly and must end with a return statement containing the final result.
+  
+  Available functions (already in scope, use directly):
+  ${getToolsAPI()}
+  `,
+  ...executeCodeSchema,
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-empty-function
