@@ -1,97 +1,127 @@
 export interface TestCase {
   id: string;
   instruction: string;
-  category: TestCategory;
+  toolDependency: ToolDependency;
+  dataComplexity: "simple" | "complex";
 }
 
-export type TestCategory =
-  | "single-tool"
-  | "dual-parallel"
-  | "dual-sequential"
-  | "multi-tool-complex";
+export type ToolDependency = "independent" | "sequential" | "iterative";
 
-export const categoryLabels: Record<TestCategory, string> = {
-  "single-tool": "Single Tool",
-  "dual-parallel": "Dual Parallel",
-  "dual-sequential": "Dual Sequential",
-  "multi-tool-complex": "Multi Tool Complex",
-};
+export interface TestCase {
+  id: string;
+  instruction: string;
+  toolDependency: ToolDependency;
+  dataComplexity: "simple" | "complex";
+}
 
-export const tests: TestCase[] = [
+export const TEST_CASES: TestCase[] = [
+  // ═══════════════════════════════════════════════════════════
+  // INDEPENDENT - No data dependencies between tool calls
+  // ═══════════════════════════════════════════════════════════
+
+  // Independent + Simple
   {
-    id: "most-expensive-product",
-    category: "single-tool",
+    id: "customer-contact-info",
     instruction:
-      "Find the product with the highest price. What is its name and price?",
+      "What is the contact name and phone number for the customer 'Around the Horn'?",
+    toolDependency: "independent",
+    dataComplexity: "simple",
   },
   {
-    id: "basic-order-search",
-    category: "single-tool",
-    instruction: "How many cancelled orders are there in total?",
-  },
-
-  // ===== DUAL PARALLEL =====
-  {
-    id: "customer-and-orders",
-    category: "dual-parallel",
+    id: "shipping-options-comparison",
     instruction:
-      "Give me details about customer 095feb7a-eb45-4a67-a0dc-00d009ac86b2. How many pending orders does this customer have?",
-  },
-  {
-    id: "product-performance-correlation",
-    category: "dual-parallel",
-    instruction:
-      "Compare the top 5 best-selling products (by revenue) with the top 5 products by order count. How many products appear in both lists?",
+      "We're evaluating our shipping partners. What are the company names and contact phone numbers for shippers 1, 2, and 3?",
+    toolDependency: "independent",
+    dataComplexity: "simple",
   },
 
-  // ===== DUAL SEQUENTIAL =====
+  // Independent + Complex
   {
-    id: "most-expensive-order-customer",
-    category: "dual-sequential",
+    id: "low-stock-products",
     instruction:
-      "Find the customer who placed the most expensive order and give me all customer details.",
-  },
-  {
-    id: "inventory-low-stock-value",
-    category: "dual-sequential",
-    instruction:
-      "Get the inventory status with a low stock threshold of 15. What is the total potential revenue in euro if all low-stock products are sold?",
+      "How many products have stock levels below their reorder level and are not discontinued?",
+    toolDependency: "independent",
+    dataComplexity: "complex",
   },
 
-  // ===== MULTI TOOL COMPLEX =====
   {
-    id: "churn-risk-analysis",
-    category: "multi-tool-complex",
-    instruction: `Identify customers at risk of churning using the following criteria:
-      1. Find customers who have made at least 3 orders in total
-      2. Their most recent order must be more than 90 days ago
-      3. Among these at-risk customers, find the one with the highest lifetime value (total spent)
-      
-      Return ONLY the name of the highest-value at-risk customer and their total lifetime spending as a simple object: { customerName: string, totalSpent: number }`,
+    id: "customer-distribution",
+    instruction:
+      "How many customers do we have in each country? List the top 3 countries.",
+    toolDependency: "independent",
+    dataComplexity: "complex",
+  },
+
+  // ═══════════════════════════════════════════════════════════
+  // SEQUENTIAL - Chain of dependencies
+  // ═══════════════════════════════════════════════════════════
+
+  // Sequential + Simple
+  {
+    id: "employee-supervisor-lookup",
+    instruction: "Find all employees who report to Andrew.",
+    toolDependency: "sequential",
+    dataComplexity: "simple",
   },
   {
-    id: "top-customer-product-preference",
-    category: "multi-tool-complex",
+    id: "order-customer-contact",
     instruction:
-      "Find the top 3 customers by total spending. For each of these customers, what is the most frequently purchased product (by quantity)? Return customer name, total spent, and their favorite product name.",
+      "Who placed order 10290? Provide the customer's company name and phone number.",
+    toolDependency: "sequential",
+    dataComplexity: "simple",
+  },
+
+  // Sequential + Complex
+  {
+    id: "order-details-lookup",
+    instruction:
+      "Look up information about order 10276. How Many Products were in that order, what whas the total price and who is the customer?",
+    toolDependency: "sequential",
+    dataComplexity: "complex",
+  },
+
+  {
+    id: "supplier-inventory-value",
+    instruction:
+      "What is the total inventory value for all active products from the supplier of 'Chang'?",
+    toolDependency: "sequential",
+    dataComplexity: "complex",
+  },
+
+  // ═══════════════════════════════════════════════════════════
+  // ITERATIVE - Runtime-dependent iteration
+  // ═══════════════════════════════════════════════════════════
+
+  // Iterative + Simple
+  {
+    id: "category-top-product-revenue",
+    instruction:
+      "Which product from the 'Beverages' category generated the highest sales revenue?",
+    toolDependency: "iterative",
+    dataComplexity: "simple",
+  },
+
+  // Iterative + Complex
+  {
+    id: "customer-total-revenue",
+    instruction:
+      "Calculate the total revenue across all orders placed by customer 'QUICK-Stop'.",
+    toolDependency: "iterative",
+    dataComplexity: "complex",
   },
 ];
-
 export function getGroupedTests(): {
-  category: TestCategory;
-  label: string;
+  category: ToolDependency;
   tests: TestCase[];
 }[] {
-  const categories: TestCategory[] = [
-    "single-tool",
-    "dual-parallel",
-    "dual-sequential",
-    "multi-tool-complex",
+  const categories: ToolDependency[] = [
+    "independent",
+    "sequential",
+    "iterative",
   ];
 
   return categories.map((category) => ({
     category,
-    label: categoryLabels[category],
-    tests: tests.filter((test) => test.category === category),
+    tests: TEST_CASES.filter((test) => test.toolDependency === category),
   }));
 }

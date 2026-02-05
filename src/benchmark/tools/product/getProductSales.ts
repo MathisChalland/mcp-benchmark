@@ -68,17 +68,17 @@ export async function getProductSales({
     throw new Error(`Product with ID ${productId} not found`);
   }
 
-  const where = w.combine(
-    w.exact("id", productId),
-    w.range(
-      "orderDate",
-      startDate ? new Date(startDate) : undefined,
-      endDate ? new Date(endDate) : undefined,
-    ),
+  const where = w.range(
+    "orderDate",
+    startDate ? new Date(startDate) : undefined,
+    endDate ? new Date(endDate) : undefined,
   );
 
   const orderDetails = await db.orderDetail.findMany({
-    where,
+    where: {
+      productId,
+      order: where,
+    },
   });
 
   let totalQuantity = 0;

@@ -72,7 +72,9 @@ export function SetupBar({ setup, onSubmit }: SetupBarProps) {
           <div className="group flex">
             <Select
               groupedOptions={getGroupedTests().map((group) => ({
-                groupLabel: group.label,
+                groupLabel:
+                  group.category.charAt(0).toUpperCase() +
+                  group.category.slice(1),
                 options: group.tests.map((test) => ({
                   label: test.id,
                   value: test.id,

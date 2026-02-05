@@ -33,7 +33,6 @@ const TOOL_CALL_SYSTEM_PROMPT = `You are an efficient data retrieval assistant w
 ## Response Format
 - Answer the question directly and concisely
 - Include relevant numbers, names, or data points as requested
-- Prices are in cents - convert to euros/dollars when displaying
 - If the question asks for a specific format, follow it exactly`;
 
 const CODE_GEN_SYSTEM_PROMPT = `You are a code generation assistant that writes JavaScript code to answer data queries. Use the execute_code tool to run your code - all available API functions are documented in the tool description.
@@ -49,7 +48,6 @@ const CODE_GEN_SYSTEM_PROMPT = `You are a code generation assistant that writes 
 - Answer the question directly and concisely
 - Include relevant numbers, names, or data points as requested
 - If the question asks for a specific format, follow it exactly
-- Prices are in cents - convert to euros/dollars when displaying
 `;
 
 const McpClientContext = createContext<McpClientContextValue | null>(null);
