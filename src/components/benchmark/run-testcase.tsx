@@ -5,7 +5,7 @@ import { Agent } from "./agent";
 import { Bot, Loader2, RotateCcw } from "lucide-react";
 import { Button } from "../ui/button";
 import { MetricOverview } from "./metric-overview";
-import type { TaskMetrics } from "@/hooks/useMetricTracker";
+import type { TaskMetrics } from "@/benchmark/agent/metric-tracker";
 import {
   MCP_SERVERS,
   useMcpClients,

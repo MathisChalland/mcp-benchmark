@@ -75,6 +75,6 @@ export class MetricTracker {
   }
 
   getCallCount() {
-    return this.metrics.llmCalls + 1;
+    return this.metrics.llmCalls;
   }
 }

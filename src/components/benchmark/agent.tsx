@@ -1,9 +1,9 @@
 import { useAgent } from "@/hooks/useAgent";
 import type { useMcpClient } from "@/hooks/useMcpClient";
 import type { TestSetupResult } from "./setup/useTestSetup";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { FlowNode } from "./agent-flow/flow-node";
-import type { TaskMetrics } from "@/hooks/useMetricTracker";
+import type { TaskMetrics } from "@/benchmark/agent/metric-tracker";
 
 interface Props {
   mcpClient: ReturnType<typeof useMcpClient>;
@@ -15,14 +15,16 @@ interface Props {
 export function Agent({ mcpClient, setup, agentType, onComplete }: Props) {
   const agent = useAgent({
     mcpClient,
-    reasoning: setup.config.reasoning,
     model: setup.config.model,
     agentType,
   });
 
+  const hasStartedRef = useRef(false);
+
   // Auto-start the test when component mounts
   useEffect(() => {
-    if (agent.isReady && agent.messages.length === 0) {
+    if (agent.isReady && !hasStartedRef.current) {
+      hasStartedRef.current = true;
       agent
         .runTask(setup.prompt)
         .then((result) => {

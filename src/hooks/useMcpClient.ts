@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 
-export interface Tool {
+export interface Tooll {
   name: string;
   description?: string;
   inputSchema?: Record<string, unknown>;
@@ -15,7 +16,7 @@ interface UseMcpClientOptions {
   systemPrompt?: string;
 }
 
-export function useMcpClient({ serverUrl,systemPrompt }: UseMcpClientOptions) {
+export function useMcpClient({ serverUrl, systemPrompt }: UseMcpClientOptions) {
   const [tools, setTools] = useState<Tool[]>([]);
   const [status, setStatus] = useState<ConnectionStatus>("idle");
   const [error, setError] = useState<string | null>(null);
@@ -49,18 +50,9 @@ export function useMcpClient({ serverUrl,systemPrompt }: UseMcpClientOptions) {
   }, [serverUrl]);
 
   const callTool = useCallback(
-    async <T = unknown>(
-      toolName: string,
-      args: Record<string, unknown> = {},
-    ): Promise<T> => {
-      if (!clientRef.current) {
-        throw new Error("Not connected");
-      }
-      const result = await clientRef.current.callTool({
-        name: toolName,
-        arguments: args,
-      });
-      return result as T;
+    async (params: Parameters<Client["callTool"]>[0]) => {
+      if (!clientRef.current) throw new Error("Not connected");
+      return clientRef.current.callTool(params);
     },
     [],
   );

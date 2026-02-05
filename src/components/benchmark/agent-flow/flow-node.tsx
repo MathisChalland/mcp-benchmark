@@ -8,15 +8,8 @@ import {
   Terminal,
   Wrench,
 } from "lucide-react";
-import { ToolCall } from "./tool-call";
+import { ToolCall, type ToolCallWithResult } from "./tool-call";
 import { cn } from "@/lib/utils";
-
-interface ToolCallInfo {
-  id: string;
-  name: string;
-  arguments: string;
-  response?: string;
-}
 
 export type FlowNode =
   | { type: "agent"; agentType: string }
@@ -24,7 +17,7 @@ export type FlowNode =
   | { type: "thinking"; content: string }
   | { type: "response"; content: string }
   | { type: "reasoning"; content: string }
-  | { type: "tool-calls"; calls: ToolCallInfo[] }
+  | { type: "tool-calls"; calls: ToolCallWithResult[] }
   | { type: "llm-call"; callNumber: number; isLoading: boolean }
   | { type: "error"; content: string };
 
