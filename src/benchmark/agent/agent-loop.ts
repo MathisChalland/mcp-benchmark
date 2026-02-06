@@ -106,7 +106,6 @@ export async function runAgentLoop({
 
       if (!llmResult.toolCalls) {
         metricTracker.finish();
-        console.log("Final metrics:", metricTracker.getMetrics());
         return {
           isError: false,
           answer: llmResult.response,
