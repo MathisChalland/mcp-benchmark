@@ -1,15 +1,15 @@
 import z from "zod";
 
 export const LLM_MODELS = {
-  "anthropic/claude-opus-4.5": {
-    name: "Claude Opus 4.5",
-    supportsReasoning: true,
-    tokenCost: {
-      input: 5,
-      output: 25,
-    },
-    contextWindow: 200,
-  },
+  // "anthropic/claude-opus-4.5": {
+  //   name: "Claude Opus 4.5",
+  //   supportsReasoning: true,
+  //   tokenCost: {
+  //     input: 5,
+  //     output: 25,
+  //   },
+  //   contextWindow: 200,
+  // },
   "anthropic/claude-sonnet-4.5": {
     name: "Claude Sonnet 4.5",
     supportsReasoning: true,
@@ -46,15 +46,15 @@ export const LLM_MODELS = {
     },
     contextWindow: 400,
   },
-  "openai/gpt-5-nano": {
-    name: "GPT-5 Nano",
-    supportsReasoning: true,
-    tokenCost: {
-      input: 0.05,
-      output: 0.4,
-    },
-    contextWindow: 400,
-  },
+  // "openai/gpt-5-nano": {
+  //   name: "GPT-5 Nano",
+  //   supportsReasoning: true,
+  //   tokenCost: {
+  //     input: 0.05,
+  //     output: 0.4,
+  //   },
+  //   contextWindow: 400,
+  // },
   "google/gemini-3-pro-preview": {
     name: "Gemini 3 Pro",
     supportsReasoning: true,
