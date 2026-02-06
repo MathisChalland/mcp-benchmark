@@ -100,7 +100,6 @@ export async function execute_code(code: string): Promise<{
     const result = await fn(...paramValues);
 
     return {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       result,
       logs: logs.length > 0 ? logs : undefined,
     };

@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { useMcpClient } from "@/hooks/useMcpClient";
+import { type useMcpClient } from "@/hooks/useMcpClient";
 import { api } from "@/trpc/react";
 import type { FlowNode } from "@/components/benchmark/agent-flow/flow-node";
 import type { LLMModelKey } from "@/components/benchmark/setup/llm-models";

@@ -87,15 +87,15 @@ export async function configureBenchmark(): Promise<BenchmarkConfig | null> {
     return null;
   }
 
-  const runsNum = parseInt(runs as string);
+  const runsNum = parseInt(runs);
   if (!runsNum || runsNum < 1 || runsNum > 100) return null;
 
   p.outro("Configuration complete!");
 
   return {
     testCase,
-    agents: agents as AgentType[],
-    models: models as LLMModelKey[],
+    agents: agents,
+    models: models,
     runs: runsNum,
   };
 }

@@ -5,7 +5,7 @@ import { ArrowUp, X } from "lucide-react";
 import { Configuration } from "./configuration";
 import { cn } from "@/lib/utils";
 import { getGroupedTests } from "@/benchmark/test-cases";
-import { useTestSetup, type TestSetupResult } from "./useTestSetup";
+import { type useTestSetup, type TestSetupResult } from "./useTestSetup";
 import { toast } from "sonner";
 
 interface SetupBarProps {

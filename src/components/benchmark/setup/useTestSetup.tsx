@@ -1,6 +1,6 @@
 "use client";
 import { useState, useMemo, useCallback } from "react";
-import { MCP_SERVERS } from "@/contexts/useMcpClientContext";
+import { type MCP_SERVERS } from "@/contexts/useMcpClientContext";
 import type {
   Effort,
   LLMModelKey,

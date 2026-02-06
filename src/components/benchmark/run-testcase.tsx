@@ -1,5 +1,5 @@
 import type { TestSetupResult } from "./setup/useTestSetup";
-import { forwardRef, useCallback, useRef, useState, type Ref } from "react";
+import { useCallback, useRef, useState, type Ref } from "react";
 import { FlowNode } from "./agent-flow/flow-node";
 import { Agent, type AgentHandle } from "./agent";
 import { Bot, Loader2, RotateCcw, Square } from "lucide-react";

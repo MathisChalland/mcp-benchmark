@@ -1,5 +1,5 @@
 import type { ToolContent } from "@/app/api/mcp/types";
-import { Client } from "@modelcontextprotocol/sdk/client";
+import { type Client } from "@modelcontextprotocol/sdk/client";
 import type {
   ChatCompletionMessageFunctionToolCall,
   ChatCompletionMessageParam,
@@ -13,8 +13,6 @@ interface Params {
     result: ToolCallResult,
   ) => void;
 }
-
-type TCaller = Client["callTool"];
 
 export type ToolCaller = Client["callTool"];
 

@@ -1,12 +1,11 @@
 "use client";
 import { cn } from "@/lib/utils";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { AsyncButton } from "@/components/basic-components/async-action-button";
 import { authClient } from "@/server/better-auth/client";
 import { Github } from "lucide-react";
-import { toast } from "sonner";
 
 export function LoginForm({ className }: { className?: string }) {
   const [isLoading, setIsLoading] = useState(false);

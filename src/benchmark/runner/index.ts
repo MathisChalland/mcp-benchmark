@@ -40,8 +40,6 @@ async function runBenchmark(config: BenchmarkConfig): Promise<void> {
   const agentSetups = await setupBenchmarkAgents(config.agents);
   s.stop("MCP servers ready");
 
-  let currentRun = 0;
-
   try {
     for (const model of config.models) {
       results.results[model] = {} as Record<AgentType, AgentLoopResult[]>;
@@ -52,9 +50,6 @@ async function runBenchmark(config: BenchmarkConfig): Promise<void> {
         p.intro(`${agentSetup.agentType}`);
 
         for (let run = 1; run <= config.runs; run++) {
-          currentRun++;
-          const percentage = Math.round((currentRun / totalRuns) * 100);
-
           const spinner = p.spinner();
           spinner.start(`Run ${run} in progress...`);
 
@@ -118,7 +113,7 @@ async function main(): Promise<void> {
 
     await runBenchmark(config);
   } catch (error) {
-    p.log.error(`Fatal error: ${error}`);
+    p.log.error(`Fatal error: ${String(error)}`);
     process.exit(1);
   }
 }
