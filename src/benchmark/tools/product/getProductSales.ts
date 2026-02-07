@@ -6,7 +6,7 @@ import type { Order, Product } from "../../code-approach/types";
 export const getProductSalesSchema = {
   inputSchema: {
     productId: z
-      .number()
+      .string()
       .describe("The ID of the product to get sales data for"),
     startDate: z
       .string()
@@ -31,17 +31,6 @@ export const getProductSalesToolDefinition = {
   ...getProductSalesSchema,
 };
 
-export interface ProductSales {
-  productId: number;
-  productName: string;
-  totalQuantity: number;
-  revenue: number;
-  orderCount: number;
-  startDate: string | null;
-  endDate: string | null;
-  product?: Product;
-}
-
 const w = createWhereClauseBuilder<Order>();
 
 /**
@@ -55,11 +44,20 @@ export async function getProductSales({
   endDate,
   includeProduct = false,
 }: {
-  productId: number;
+  productId: string;
   startDate?: string;
   endDate?: string;
   includeProduct?: boolean;
-}): Promise<ProductSales> {
+}): Promise<{
+  productId: string;
+  productName: string;
+  totalQuantity: number;
+  revenue: number;
+  orderCount: number;
+  startDate: string | null;
+  endDate: string | null;
+  product?: Product;
+}> {
   const product = await db.product.findUnique({
     where: { id: productId },
   });
@@ -83,7 +81,7 @@ export async function getProductSales({
 
   let totalQuantity = 0;
   let revenue = 0;
-  const uniqueOrders = new Set<number>();
+  const uniqueOrders = new Set<string>();
 
   for (const detail of orderDetails) {
     const lineTotal = detail.unitPrice * detail.quantity;
@@ -94,7 +92,16 @@ export async function getProductSales({
     uniqueOrders.add(detail.orderId);
   }
 
-  const result: ProductSales = {
+  const result: {
+    productId: string;
+    productName: string;
+    totalQuantity: number;
+    revenue: number;
+    orderCount: number;
+    startDate: string | null;
+    endDate: string | null;
+    product?: Product;
+  } = {
     productId: product.id,
     productName: product.name,
     totalQuantity,

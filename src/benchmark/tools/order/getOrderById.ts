@@ -9,7 +9,7 @@ import { db } from "@/server/db";
 
 export const getOrderByIdSchema = {
   inputSchema: {
-    orderId: z.number().describe("The ID of the order to retrieve"),
+    orderId: z.string().describe("The ID of the order to retrieve"),
     includeDetails: z
       .boolean()
       .optional()
@@ -51,7 +51,7 @@ export async function getOrderById({
   includeCustomer = false,
   includeEmployee = false,
 }: {
-  orderId: number;
+  orderId: string;
   includeDetails?: boolean;
   includeCustomer?: boolean;
   includeEmployee?: boolean;

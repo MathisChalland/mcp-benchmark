@@ -4,7 +4,7 @@ import { db } from "@/server/db";
 
 export const getOrderDetailsSchema = {
   inputSchema: {
-    orderId: z.number().describe("The ID of the order to retrieve details for"),
+    orderId: z.string().describe("The ID of the order to retrieve details for"),
     includeProduct: z
       .boolean()
       .optional()
@@ -28,7 +28,7 @@ export async function getOrderDetails({
   orderId,
   includeProduct = false,
 }: {
-  orderId: number;
+  orderId: string;
   includeProduct?: boolean;
 }): Promise<Array<OrderDetail & { product?: Product }>> {
   const orderDetails = await db.orderDetail.findMany({

@@ -4,7 +4,7 @@ import type { Category } from "../../code-approach/types";
 
 export const getCategoryByIdSchema = {
   inputSchema: {
-    categoryId: z.number().describe("The ID of the category to retrieve"),
+    categoryId: z.string().describe("The ID of the category to retrieve"),
   },
 };
 
@@ -20,7 +20,7 @@ export const getCategoryByIdToolDefinition = {
 export async function getCategoryById({
   categoryId,
 }: {
-  categoryId: number;
+  categoryId: string;
 }): Promise<Category> {
   const category = await db.category.findUnique({
     where: {

@@ -4,7 +4,7 @@ import { db } from "@/server/db";
 
 export const getProductSchema = {
   inputSchema: {
-    productId: z.number().describe("The ID of the product to retrieve"),
+    productId: z.string().describe("The ID of the product to retrieve"),
   },
 };
 
@@ -20,7 +20,7 @@ export const getProductToolDefinition = {
 export async function getProductById({
   productId,
 }: {
-  productId: number;
+  productId: string;
 }): Promise<Product> {
   const product = await db.product.findUnique({
     where: {

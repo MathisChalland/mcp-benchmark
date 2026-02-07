@@ -4,7 +4,7 @@ import type { Employee } from "../../code-approach/types";
 
 export const getEmployeeByIdSchema = {
   inputSchema: {
-    employeeId: z.number().describe("The ID of the employee to retrieve"),
+    employeeId: z.string().describe("The ID of the employee to retrieve"),
   },
 };
 
@@ -20,7 +20,7 @@ export const getEmployeeByIdToolDefinition = {
 export async function getEmployeeById({
   employeeId,
 }: {
-  employeeId: number;
+  employeeId: string;
 }): Promise<Employee> {
   const employee = await db.employee.findUnique({
     where: {

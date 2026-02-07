@@ -4,7 +4,7 @@ import { db } from "@/server/db";
 export const getOrderTotalSchema = {
   inputSchema: {
     orderId: z
-      .number()
+      .string()
       .describe("The ID of the order to calculate the total for"),
   },
 };
@@ -19,8 +19,8 @@ export const getOrderTotalToolDefinition = {
  * Calculates the total for an order based on order details
  * Formula: sum of (unitPrice * quantity * (1 - discount)) + freight
  */
-export async function getOrderTotal({ orderId }: { orderId: number }): Promise<{
-  orderId: number;
+export async function getOrderTotal({ orderId }: { orderId: string }): Promise<{
+  orderId: string;
   subtotal: number;
   totalDiscount: number;
   freight: number;

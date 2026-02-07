@@ -16,10 +16,10 @@ export const INTERFACE_DEFINITIONS: Record<string, string> = {
   fax: string | null;
 }`,
   Product: `interface Product {
-  id: number;
+  id: string;
   name: string;
-  supplierId: number | null;
-  categoryId: number | null;
+  supplierId: string | null;
+  categoryId: string | null;
   quantityPerUnit: string | null;
   unitPrice: number | null;
   unitsInStock: number | null;
@@ -28,13 +28,13 @@ export const INTERFACE_DEFINITIONS: Record<string, string> = {
   discontinued: number;
 }`,
   Order: `interface Order {
-  id: number;
+  id: string;
   customerId: string | null;
-  employeeId: number | null;
+  employeeId: string | null;
   orderDate: string | null; // ISO date string
   requiredDate: string | null; // ISO date string
   shippedDate: string | null; // ISO date string
-  shipVia: number | null;
+  shipVia: string | null;
   freight: number | null;
   shipName: string | null;
   shipAddress: string | null;
@@ -44,7 +44,7 @@ export const INTERFACE_DEFINITIONS: Record<string, string> = {
   shipCountry: string | null;
 }`,
   Employee: `interface Employee {
-  id: number;
+  id: string;
   lastName: string;
   firstName: string;
   title: string | null;
@@ -59,11 +59,11 @@ export const INTERFACE_DEFINITIONS: Record<string, string> = {
   homePhone: string | null;
   extension: string | null;
   notes: string | null;
-  reportsToId: number | null;
+  reportsToId: string | null;
   photoPath: string | null;
 }`,
   Supplier: `interface Supplier {
-  id: number;
+  id: string;
   companyName: string;
   contactName: string | null;
   contactTitle: string | null;
@@ -77,33 +77,33 @@ export const INTERFACE_DEFINITIONS: Record<string, string> = {
   homepage: string | null;
 }`,
   OrderDetail: `interface OrderDetail {
-  orderId: number;
-  productId: number;
+  orderId: string;
+  productId: string;
   unitPrice: number;
   quantity: number;
   discount: number;
 }`,
   Shipper: `interface Shipper {
-  id: number;
+  id: string;
   companyName: string;
   phone: string | null;
 }`,
   Category: `interface Category {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
 }`,
   Region: `interface Region {
-  id: number;
+  id: string;
   description: string;
 }`,
   Territory: `interface Territory {
   id: string;
   description: string;
-  regionId: number;
+  regionId: string;
 }`,
   EmployeeTerritory: `interface EmployeeTerritory {
-  employeeId: number;
+  employeeId: string;
   territoryId: string;
 }`,
 };
@@ -119,7 +119,7 @@ declare function getAllCategories(): Promise<Category[]>;`,
 declare function getCategoryById({
   categoryId,
 }: {
-  categoryId: number;
+  categoryId: string;
 }): Promise<Category>;`,
   getCustomerById: `/**
  * Retrieves a customer by their ID or Email from the database
@@ -166,7 +166,7 @@ declare function getManyCustomers({
 declare function getEmployeeById({
   employeeId,
 }: {
-  employeeId: number;
+  employeeId: string;
 }): Promise<Employee>;`,
   getManyEmployees: `/**
  * Search and filter employees from the database with sorting and pagination
@@ -190,7 +190,7 @@ declare function getManyEmployees({
   title?: string;
   city?: string;
   country?: string;
-  reportsToId?: number;
+  reportsToId?: string;
   minHireDate?: string;
   maxHireDate?: string;
   minBirthDate?: string;
@@ -244,8 +244,8 @@ declare function getManyOrders({
   shippedDateFrom?: string;
   shippedDateTo?: string;
   customerId?: string;
-  employeeId?: number;
-  shipVia?: number;
+  employeeId?: string;
+  shipVia?: string;
   minFreight?: number;
   maxFreight?: number;
   shipCity?: string;
@@ -277,7 +277,7 @@ declare function getOrderById({
   includeCustomer = false,
   includeEmployee = false,
 }: {
-  orderId: number;
+  orderId: string;
   includeDetails?: boolean;
   includeCustomer?: boolean;
   includeEmployee?: boolean;
@@ -296,15 +296,15 @@ declare function getOrderDetails({
   orderId,
   includeProduct = false,
 }: {
-  orderId: number;
+  orderId: string;
   includeProduct?: boolean;
 }): Promise<Array<OrderDetail & { product?: Product }>>;`,
   getOrderTotal: `/**
  * Calculates the total for an order based on order details
  * Formula: sum of (unitPrice * quantity * (1 - discount)) + freight
  */
-declare function getOrderTotal({ orderId }: { orderId: number }): Promise<{
-  orderId: number;
+declare function getOrderTotal({ orderId }: { orderId: string }): Promise<{
+  orderId: string;
   subtotal: number;
   totalDiscount: number;
   freight: number;
@@ -333,8 +333,8 @@ declare function getManyProducts({
   offset = 0,
 }: {
   searchTerm?: string;
-  categoryId?: number;
-  supplierId?: number;
+  categoryId?: string;
+  supplierId?: string;
   discontinued?: number;
   minPrice?: number;
   maxPrice?: number;
@@ -365,7 +365,7 @@ declare function getManyProducts({
 declare function getProductById({
   productId,
 }: {
-  productId: number;
+  productId: string;
 }): Promise<Product>;`,
   getProductSales: `/**
  * Retrieves sales data for a specific product
@@ -378,11 +378,20 @@ declare function getProductSales({
   endDate,
   includeProduct = false,
 }: {
-  productId: number;
+  productId: string;
   startDate?: string;
   endDate?: string;
   includeProduct?: boolean;
-}): Promise<ProductSales>;`,
+}): Promise<{
+  productId: string;
+  productName: string;
+  totalQuantity: number;
+  revenue: number;
+  orderCount: number;
+  startDate: string | null;
+  endDate: string | null;
+  product?: Product;
+}>;`,
   getAllShippers: `/**
  * Retrieves all shippers from the database
  */
@@ -393,7 +402,7 @@ declare function getAllShippers(): Promise<Shipper[]>;`,
 declare function getShipperById({
   shipperId,
 }: {
-  shipperId: number;
+  shipperId: string;
 }): Promise<Shipper>;`,
   getManySuppliers: `/**
  * Retrieves multiple suppliers from the database with optional filtering, sorting, and pagination
@@ -427,7 +436,7 @@ declare function getManySuppliers({
 declare function getSupplierById({
   supplierId,
 }: {
-  supplierId: number;
+  supplierId: string;
 }): Promise<Supplier>;`,
 };
 

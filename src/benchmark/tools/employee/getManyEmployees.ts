@@ -15,7 +15,7 @@ export const getManyEmployeesSchema = {
     city: z.string().optional().describe("Filter by city"),
     country: z.string().optional().describe("Filter by country"),
     reportsToId: z
-      .number()
+      .string()
       .optional()
       .describe("Filter by reports to employee ID"),
     minHireDate: z
@@ -99,7 +99,7 @@ export async function getManyEmployees({
   title?: string;
   city?: string;
   country?: string;
-  reportsToId?: number;
+  reportsToId?: string;
   minHireDate?: string;
   maxHireDate?: string;
   minBirthDate?: string;

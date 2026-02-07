@@ -85,7 +85,7 @@ model Whitelist {
 // =============================================================================
 
 model Category {
-  id          Int       @id(map: "pk_categories") @map("category_id") @db.SmallInt
+  id          String    @id(map: "pk_categories") @default(uuid()) @map("category_id") @db.Uuid
   name        String    @map("category_name") @db.VarChar(15)
   description String?
   products    Product[]
@@ -94,7 +94,7 @@ model Category {
 }
 
 model Customer {
-  id           String  @id(map: "pk_customers") @map("customer_id") @db.VarChar(5)
+  id           String  @id(map: "pk_customers") @default(uuid()) @map("customer_id") @db.Uuid
   companyName  String  @map("company_name") @db.VarChar(40)
   contactName  String? @map("contact_name") @db.VarChar(30)
   contactTitle String? @map("contact_title") @db.VarChar(30)
@@ -111,7 +111,7 @@ model Customer {
 }
 
 model Employee {
-  id              Int                 @id(map: "pk_employees") @map("employee_id") @db.SmallInt
+  id              String              @id(map: "pk_employees") @default(uuid()) @map("employee_id") @db.Uuid
   lastName        String              @map("last_name") @db.VarChar(20)
   firstName       String              @map("first_name") @db.VarChar(10)
   title           String?             @db.VarChar(30)
@@ -126,7 +126,7 @@ model Employee {
   homePhone       String?             @map("home_phone") @db.VarChar(24)
   extension       String?             @db.VarChar(4)
   notes           String?
-  reportsToId     Int?                @map("reports_to") @db.SmallInt
+  reportsToId     String?             @map("reports_to") @db.Uuid
   photoPath       String?             @map("photo_path") @db.VarChar(255)
   territories     EmployeeTerritory[]
   reportsTo       Employee?           @relation("EmployeeHierarchy", fields: [reportsToId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_employees_employees")
@@ -137,10 +137,10 @@ model Employee {
 }
 
 model Product {
-  id              Int           @id(map: "pk_products") @map("product_id") @db.SmallInt
+  id              String        @id(map: "pk_products") @default(uuid()) @map("product_id") @db.Uuid
   name            String        @map("product_name") @db.VarChar(40)
-  supplierId      Int?          @map("supplier_id") @db.SmallInt
-  categoryId      Int?          @map("category_id") @db.SmallInt
+  supplierId      String?       @map("supplier_id") @db.Uuid
+  categoryId      String?       @map("category_id") @db.Uuid
   quantityPerUnit String?       @map("quantity_per_unit") @db.VarChar(20)
   unitPrice       Float?        @map("unit_price") @db.Real
   unitsInStock    Int?          @map("units_in_stock") @db.SmallInt
@@ -155,7 +155,7 @@ model Product {
 }
 
 model Supplier {
-  id           Int       @id(map: "pk_suppliers") @map("supplier_id") @db.SmallInt
+  id           String    @id(map: "pk_suppliers") @default(uuid()) @map("supplier_id") @db.Uuid
   companyName  String    @map("company_name") @db.VarChar(40)
   contactName  String?   @map("contact_name") @db.VarChar(30)
   contactTitle String?   @map("contact_title") @db.VarChar(30)
@@ -177,13 +177,13 @@ model Supplier {
 // =============================================================================
 
 model Order {
-  id             Int           @id(map: "pk_orders") @map("order_id") @db.SmallInt
-  customerId     String?       @map("customer_id") @db.VarChar(5)
-  employeeId     Int?          @map("employee_id") @db.SmallInt
+  id             String        @id(map: "pk_orders") @default(uuid()) @map("order_id") @db.Uuid
+  customerId     String?       @map("customer_id") @db.Uuid
+  employeeId     String?       @map("employee_id") @db.Uuid
   orderDate      DateTime?     @map("order_date") @db.Date
   requiredDate   DateTime?     @map("required_date") @db.Date
   shippedDate    DateTime?     @map("shipped_date") @db.Date
-  shipVia        Int?          @map("ship_via") @db.SmallInt
+  shipVia        String?       @map("ship_via") @db.Uuid
   freight        Float?        @db.Real
   shipName       String?       @map("ship_name") @db.VarChar(40)
   shipAddress    String?       @map("ship_address") @db.VarChar(60)
@@ -200,8 +200,8 @@ model Order {
 }
 
 model OrderDetail {
-  orderId   Int     @map("order_id") @db.SmallInt
-  productId Int     @map("product_id") @db.SmallInt
+  orderId   String  @map("order_id") @db.Uuid
+  productId String  @map("product_id") @db.Uuid
   unitPrice Float   @map("unit_price") @db.Real
   quantity  Int     @db.SmallInt
   discount  Float   @db.Real
@@ -213,7 +213,7 @@ model OrderDetail {
 }
 
 model Shipper {
-  id          Int     @id(map: "pk_shippers") @map("shipper_id") @db.SmallInt
+  id          String  @id(map: "pk_shippers") @default(uuid()) @map("shipper_id") @db.Uuid
   companyName String  @map("company_name") @db.VarChar(40)
   phone       String? @db.VarChar(24)
   orders      Order[]
@@ -226,7 +226,7 @@ model Shipper {
 // =============================================================================
 
 model Region {
-  id          Int         @id(map: "pk_region") @map("region_id") @db.SmallInt
+  id          String      @id(map: "pk_region") @default(uuid()) @map("region_id") @db.Uuid
   description String      @map("region_description") @db.VarChar(60)
   territories Territory[]
 
@@ -234,9 +234,9 @@ model Region {
 }
 
 model Territory {
-  id          String              @id(map: "pk_territories") @map("territory_id") @db.VarChar(20)
+  id          String              @id(map: "pk_territories") @default(uuid()) @map("territory_id") @db.Uuid
   description String              @map("territory_description") @db.VarChar(60)
-  regionId    Int                 @map("region_id") @db.SmallInt
+  regionId    String              @map("region_id") @db.Uuid
   employees   EmployeeTerritory[]
   region      Region              @relation(fields: [regionId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_territories_region")
 
@@ -248,8 +248,8 @@ model Territory {
 // =============================================================================
 
 model EmployeeTerritory {
-  employeeId  Int       @map("employee_id") @db.SmallInt
-  territoryId String    @map("territory_id") @db.VarChar(20)
+  employeeId  String    @map("employee_id") @db.Uuid
+  territoryId String    @map("territory_id") @db.Uuid
   employee    Employee  @relation(fields: [employeeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_employee_territories_employees")
   territory   Territory @relation(fields: [territoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_employee_territories_territories")
 

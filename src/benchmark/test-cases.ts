@@ -38,8 +38,7 @@ export const TEST_CASES: TestCase[] = [
   // Independent + Complex
   {
     id: "low-stock-products",
-    instruction:
-      "How many products have stock levels below their reorder level and are not discontinued?",
+    instruction: "Find all products that need to be reordered",
     toolDependency: "independent",
     dataComplexity: "complex",
   },
@@ -47,7 +46,7 @@ export const TEST_CASES: TestCase[] = [
   {
     id: "customer-distribution",
     instruction:
-      "How many customers do we have in each country? List the top 3 countries.",
+      "Provide a breakdown of the number of customers in each country.",
     toolDependency: "independent",
     dataComplexity: "complex",
   },

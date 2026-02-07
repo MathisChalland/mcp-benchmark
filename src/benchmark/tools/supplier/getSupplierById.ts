@@ -4,7 +4,7 @@ import type { Supplier } from "../../code-approach/types";
 
 export const getSupplierByIdSchema = {
   inputSchema: {
-    supplierId: z.number().describe("The ID of the supplier to retrieve"),
+    supplierId: z.string().describe("The ID of the supplier to retrieve"),
   },
 };
 
@@ -20,7 +20,7 @@ export const getSupplierByIdToolDefinition = {
 export async function getSupplierById({
   supplierId,
 }: {
-  supplierId: number;
+  supplierId: string;
 }): Promise<Supplier> {
   const supplier = await db.supplier.findUnique({
     where: {

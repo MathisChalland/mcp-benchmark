@@ -13,10 +13,10 @@ export interface Customer {
 }
 
 export interface Product {
-  id: number;
+  id: string;
   name: string;
-  supplierId: number | null;
-  categoryId: number | null;
+  supplierId: string | null;
+  categoryId: string | null;
   quantityPerUnit: string | null;
   unitPrice: number | null;
   unitsInStock: number | null;
@@ -26,13 +26,13 @@ export interface Product {
 }
 
 export interface Order {
-  id: number;
+  id: string;
   customerId: string | null;
-  employeeId: number | null;
+  employeeId: string | null;
   orderDate: string | null; // ISO date string
   requiredDate: string | null; // ISO date string
   shippedDate: string | null; // ISO date string
-  shipVia: number | null;
+  shipVia: string | null;
   freight: number | null;
   shipName: string | null;
   shipAddress: string | null;
@@ -43,7 +43,7 @@ export interface Order {
 }
 
 export interface Employee {
-  id: number;
+  id: string;
   lastName: string;
   firstName: string;
   title: string | null;
@@ -58,12 +58,12 @@ export interface Employee {
   homePhone: string | null;
   extension: string | null;
   notes: string | null;
-  reportsToId: number | null;
+  reportsToId: string | null;
   photoPath: string | null;
 }
 
 export interface Supplier {
-  id: number;
+  id: string;
   companyName: string;
   contactName: string | null;
   contactTitle: string | null;
@@ -78,37 +78,37 @@ export interface Supplier {
 }
 
 export interface OrderDetail {
-  orderId: number;
-  productId: number;
+  orderId: string;
+  productId: string;
   unitPrice: number;
   quantity: number;
   discount: number;
 }
 
 export interface Shipper {
-  id: number;
+  id: string;
   companyName: string;
   phone: string | null;
 }
 
 export interface Category {
-  id: number;
+  id: string;
   name: string;
   description: string | null;
 }
 
 export interface Region {
-  id: number;
+  id: string;
   description: string;
 }
 
 export interface Territory {
   id: string;
   description: string;
-  regionId: number;
+  regionId: string;
 }
 
 export interface EmployeeTerritory {
-  employeeId: number;
+  employeeId: string;
   territoryId: string;
 }

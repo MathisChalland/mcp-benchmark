@@ -4,7 +4,7 @@ import type { Shipper } from "../../code-approach/types";
 
 export const getShipperByIdSchema = {
   inputSchema: {
-    shipperId: z.number().describe("The ID of the shipper to retrieve"),
+    shipperId: z.string().describe("The ID of the shipper to retrieve"),
   },
 };
 
@@ -20,7 +20,7 @@ export const getShipperByIdToolDefinition = {
 export async function getShipperById({
   shipperId,
 }: {
-  shipperId: number;
+  shipperId: string;
 }): Promise<Shipper> {
   const shipper = await db.shipper.findUnique({
     where: {

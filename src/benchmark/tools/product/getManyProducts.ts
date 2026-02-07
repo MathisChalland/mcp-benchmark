@@ -9,8 +9,8 @@ export const searchProductsSchema = {
       .string()
       .optional()
       .describe("Search term to match against product name"),
-    categoryId: z.number().optional().describe("Filter by category ID"),
-    supplierId: z.number().optional().describe("Filter by supplier ID"),
+    categoryId: z.string().optional().describe("Filter by category ID"),
+    supplierId: z.string().optional().describe("Filter by supplier ID"),
     discontinued: z
       .number()
       .optional()
@@ -120,8 +120,8 @@ export async function getManyProducts({
   offset = 0,
 }: {
   searchTerm?: string;
-  categoryId?: number;
-  supplierId?: number;
+  categoryId?: string;
+  supplierId?: string;
   discontinued?: number;
   minPrice?: number;
   maxPrice?: number;
