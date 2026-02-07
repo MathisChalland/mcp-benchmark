@@ -2,8 +2,10 @@
 
 import { createContext, useContext, useEffect, type ReactNode } from "react";
 import { useMcpClient } from "@/hooks/useMcpClient";
-import { CODE_GEN_SYSTEM_PROMPT } from "@/benchmark/mcp-server/code-gen";
-import { TOOL_CALL_SYSTEM_PROMPT } from "@/benchmark/mcp-server/tool-calling";
+import {
+  TOOL_CALL_SYSTEM_PROMPT,
+  CODE_GEN_SYSTEM_PROMPT,
+} from "@/benchmark/agent/agents";
 
 export const MCP_SERVERS = {
   toolCall: { url: "/api/mcp/tool-call/mcp", name: "Tool Calling" },

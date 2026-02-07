@@ -3,9 +3,9 @@ import {
   type LLMModelKey,
 } from "@/components/benchmark/setup/llm-models";
 import { TEST_CASES, type TestCase } from "../test-cases";
-import { AGENT_TYPES, type AgentType } from "./setup";
 import * as p from "@clack/prompts";
 import { isCancel } from "@clack/prompts";
+import { AGENT_TYPES, type AgentType } from "../agent/agents";
 
 export interface BenchmarkConfig {
   testCase: TestCase;

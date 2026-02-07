@@ -4,13 +4,7 @@ import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { setupToolCallServer } from "../mcp-server/tool-calling";
 import { setupCodeGenServer } from "../mcp-server/code-gen";
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
-
-export type AgentType = "tool-calling" | "code-gen";
-
-export const AGENT_TYPES: { value: AgentType; title: string }[] = [
-  { value: "tool-calling", title: "Tool Calling Agent" },
-  { value: "code-gen", title: "Code Generation Agent" },
-];
+import type { AgentType } from "../agent/agents";
 
 interface McpSetup {
   client: Client;

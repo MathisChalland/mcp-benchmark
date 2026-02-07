@@ -2,9 +2,12 @@ import "dotenv/config";
 import { type LLMModelKey } from "@/components/benchmark/setup/llm-models";
 import { runAgentLoop, type AgentLoopResult } from "../agent/agent-loop";
 import { executeLLMCall } from "@/lib/execute-llm-call";
-import { setupBenchmarkAgents, type AgentType } from "./setup";
-import { TOOL_CALL_SYSTEM_PROMPT } from "../mcp-server/tool-calling";
-import { CODE_GEN_SYSTEM_PROMPT } from "../mcp-server/code-gen";
+import { setupBenchmarkAgents } from "./setup";
+import {
+  CODE_GEN_SYSTEM_PROMPT,
+  TOOL_CALL_SYSTEM_PROMPT,
+  type AgentType,
+} from "../agent/agents";
 import { configureBenchmark, type BenchmarkConfig } from "./config";
 import * as p from "@clack/prompts";
 import path from "path";
