@@ -22,7 +22,7 @@ export interface Product {
   unitsInStock: number | null;
   unitsOnOrder: number | null;
   reorderLevel: number | null;
-  discontinued: number;
+  discontinued: boolean;
 }
 
 export interface Order {

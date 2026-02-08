@@ -146,7 +146,7 @@ model Product {
   unitsInStock    Int?          @map("units_in_stock") @db.SmallInt
   unitsOnOrder    Int?          @map("units_on_order") @db.SmallInt
   reorderLevel    Int?          @map("reorder_level") @db.SmallInt
-  discontinued    Int
+  discontinued    Boolean
   orderDetails    OrderDetail[]
   category        Category?     @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_categories")
   supplier        Supplier?     @relation(fields: [supplierId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_products_suppliers")

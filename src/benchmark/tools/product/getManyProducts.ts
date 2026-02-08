@@ -12,7 +12,7 @@ export const searchProductsSchema = {
     categoryId: z.string().optional().describe("Filter by category ID"),
     supplierId: z.string().optional().describe("Filter by supplier ID"),
     discontinued: z
-      .number()
+      .boolean()
       .optional()
       .describe("Filter by discontinued status (0 or 1)"),
     minPrice: z
@@ -122,7 +122,7 @@ export async function getManyProducts({
   searchTerm?: string;
   categoryId?: string;
   supplierId?: string;
-  discontinued?: number;
+  discontinued?: boolean;
   minPrice?: number;
   maxPrice?: number;
   minStock?: number;
