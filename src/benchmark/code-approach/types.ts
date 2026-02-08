@@ -59,7 +59,6 @@ export interface Employee {
   extension: string | null;
   notes: string | null;
   reportsToId: string | null;
-  photoPath: string | null;
 }
 
 export interface Supplier {

@@ -127,7 +127,6 @@ model Employee {
   extension       String?             @db.VarChar(4)
   notes           String?
   reportsToId     String?             @map("reports_to") @db.Uuid
-  photoPath       String?             @map("photo_path") @db.VarChar(255)
   territories     EmployeeTerritory[]
   reportsTo       Employee?           @relation("EmployeeHierarchy", fields: [reportsToId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_employees_employees")
   subordinates    Employee[]          @relation("EmployeeHierarchy")
