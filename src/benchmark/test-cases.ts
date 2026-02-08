@@ -1,9 +1,4 @@
-export interface TestCase {
-  id: string;
-  instruction: string;
-  toolDependency: ToolDependency;
-  dataComplexity: "simple" | "complex";
-}
+import type { TestCaseValidator } from "./validator";
 
 export type ToolDependency = "independent" | "sequential" | "iterative";
 
@@ -12,6 +7,7 @@ export interface TestCase {
   instruction: string;
   toolDependency: ToolDependency;
   dataComplexity: "simple" | "complex";
+  validator?: TestCaseValidator;
 }
 
 export const TEST_CASES: TestCase[] = [
@@ -23,7 +19,7 @@ export const TEST_CASES: TestCase[] = [
   {
     id: "customer-contact-info",
     instruction:
-      "What is the contact name and phone number for the customer 'Around the Horn'?",
+      "What is the contact name and phone number for the customer 'Unity Distribution Ltd'?",
     toolDependency: "independent",
     dataComplexity: "simple",
   },

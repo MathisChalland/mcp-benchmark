@@ -35,7 +35,7 @@ export function Agent({ mcpClient, setup, agentType, onComplete, ref }: Props) {
     if (agent.isReady && !hasStartedRef.current) {
       hasStartedRef.current = true;
       agent
-        .runTask(setup.prompt)
+        .runTask(setup.prompt, setup.testCase?.validator)
         .then((result) => {
           onComplete?.(result.metrics);
         })

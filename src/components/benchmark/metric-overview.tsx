@@ -1,4 +1,11 @@
-import { Clock, Cpu, MessageSquare, Wrench, Zap } from "lucide-react";
+import {
+  BadgeCheck,
+  Clock,
+  Cpu,
+  MessageSquare,
+  Wrench,
+  Zap,
+} from "lucide-react";
 import type { TaskMetrics } from "@/benchmark/agent/metric-tracker";
 import { cn } from "@/lib/utils";
 import type { LLMModelKey } from "@/components/benchmark/setup/llm-models";
@@ -91,6 +98,17 @@ export function MetricOverview({
           icon={Zap}
           label="Cost in cents"
           value={formatCost(calculateCost())}
+        />
+        <MetricItem
+          icon={BadgeCheck}
+          label="Success"
+          value={
+            metrics.success === undefined
+              ? "N/A"
+              : metrics.success
+                ? "Yes"
+                : "No"
+          }
         />
       </div>
     </div>

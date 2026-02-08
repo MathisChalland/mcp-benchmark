@@ -59,6 +59,7 @@ async function runBenchmark(config: BenchmarkConfig): Promise<void> {
           const result = await runAgentLoop({
             config: {
               instruction: config.testCase.instruction,
+              validator: config.testCase.validator,
               systemPrompt: SYSTEM_PROMPTS[agentSetup.agentType],
               tools: agentSetup.tools,
               maxIterations: 15,

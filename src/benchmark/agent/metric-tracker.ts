@@ -1,4 +1,5 @@
 import type { CompletionUsage } from "openai/resources";
+import { validateResponse, type TestCaseValidator } from "../validator";
 
 export interface TokenUsage {
   totalTokens: number;
@@ -72,6 +73,17 @@ export class MetricTracker {
 
   getMetrics() {
     return this.metrics;
+  }
+
+  getFinalMetrics(answer?: string | null, validator?: TestCaseValidator) {
+    return {
+      ...this.metrics,
+      success: !answer
+        ? false
+        : validator
+          ? validateResponse(answer, validator).passed
+          : undefined,
+    };
   }
 
   getCallCount() {

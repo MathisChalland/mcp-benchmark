@@ -8,6 +8,7 @@ import {
   type AgentLoopResult,
   type AgentLoopEvents,
 } from "@/benchmark/agent/agent-loop";
+import type { TestCaseValidator } from "@/benchmark/validator";
 
 interface UseAgentOptions {
   mcpClient: ReturnType<typeof useMcpClient>;
@@ -89,7 +90,10 @@ export function useAgent({
   );
 
   const runTask = useCallback(
-    async (instruction: string): Promise<AgentLoopResult> => {
+    async (
+      instruction: string,
+      validator?: TestCaseValidator,
+    ): Promise<AgentLoopResult> => {
       if (isRunningRef.current) {
         throw new Error("Agent is already running a task");
       }
@@ -103,6 +107,7 @@ export function useAgent({
         const loopResult = await runAgentLoop({
           config: {
             instruction,
+            validator,
             systemPrompt: mcpClient.systemPrompt,
             tools: mcpClient.tools,
             maxIterations,

@@ -12,9 +12,11 @@ import {
 import type { Tool } from "@modelcontextprotocol/sdk/types.js";
 import { MetricTracker, type TaskMetrics } from "./metric-tracker";
 import type { LLMModelKey } from "@/components/benchmark/setup/llm-models";
+import { type TestCaseValidator } from "../validator";
 
 interface AgentLoopConfig {
   instruction: string;
+  validator?: TestCaseValidator;
   systemPrompt?: string;
   tools: Tool[];
   maxIterations?: number;
@@ -55,6 +57,7 @@ export async function runAgentLoop({
 }: AgentLoopInput): Promise<AgentLoopResult> {
   const {
     instruction,
+    validator,
     systemPrompt,
     tools,
     maxIterations = 10,
@@ -109,7 +112,7 @@ export async function runAgentLoop({
         return {
           isError: false,
           answer: llmResult.response,
-          metrics: metricTracker.getMetrics(),
+          metrics: metricTracker.getFinalMetrics(llmResult.response, validator),
         };
       }
 
@@ -129,14 +132,15 @@ export async function runAgentLoop({
     return {
       isError: true,
       error: err instanceof Error ? err.message : String(err),
-      metrics: metricTracker.getMetrics(),
+      metrics: metricTracker.getFinalMetrics(),
     };
   }
   metricTracker.finish();
+
   return {
     isError: true,
     error: "Max iterations reached without a final answer",
-    metrics: metricTracker.getMetrics(),
+    metrics: metricTracker.getFinalMetrics(),
   };
 }
 
