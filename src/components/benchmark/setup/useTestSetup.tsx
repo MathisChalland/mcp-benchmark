@@ -1,11 +1,11 @@
 "use client";
 import { useState, useMemo, useCallback } from "react";
-import { tests } from "@/benchmark/test-cases";
-import { MCP_SERVERS } from "@/contexts/useMcpClientContext";
+import { type MCP_SERVERS } from "@/contexts/useMcpClientContext";
 import type {
   Effort,
   LLMModelKey,
 } from "@/components/benchmark/setup/llm-models";
+import { TEST_CASES, type TestCase } from "@/benchmark/test-cases";
 
 export interface TestSetupConfig {
   model: LLMModelKey;
@@ -15,8 +15,7 @@ export interface TestSetupConfig {
 
 export interface TestSetupResult {
   prompt: string;
-  isTestCase: boolean;
-  testCaseId: string | null;
+  testCase?: TestCase;
   config: TestSetupConfig;
 }
 
@@ -35,7 +34,7 @@ export function useTestSetup() {
   const [config, setConfig] = useState<TestSetupConfig>(defaultConfig);
 
   const selectedTest = useMemo(
-    () => tests.find((t) => t.id === selectedTestId),
+    () => TEST_CASES.find((t) => t.id === selectedTestId),
     [selectedTestId],
   );
 
@@ -69,11 +68,10 @@ export function useTestSetup() {
   const getResult = useCallback((): TestSetupResult => {
     return {
       prompt,
-      isTestCase,
-      testCaseId: selectedTestId,
+      testCase: selectedTest ?? undefined,
       config,
     };
-  }, [prompt, isTestCase, selectedTestId, config]);
+  }, [prompt, selectedTest, config]);
 
   const reset = useCallback(() => {
     setSelectedTestId(null);

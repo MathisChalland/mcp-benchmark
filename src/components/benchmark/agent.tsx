@@ -1,30 +1,41 @@
 import { useAgent } from "@/hooks/useAgent";
 import type { useMcpClient } from "@/hooks/useMcpClient";
 import type { TestSetupResult } from "./setup/useTestSetup";
-import { useEffect } from "react";
+import { useEffect, useImperativeHandle, useRef, type Ref } from "react";
 import { FlowNode } from "./agent-flow/flow-node";
-import type { TaskMetrics } from "@/hooks/useMetricTracker";
+import type { TaskMetrics } from "@/benchmark/agent/metric-tracker";
 
 interface Props {
   mcpClient: ReturnType<typeof useMcpClient>;
   setup: TestSetupResult;
   agentType?: string;
   onComplete?: (metrics: TaskMetrics) => void;
+  ref: Ref<AgentHandle | null>;
 }
 
-export function Agent({ mcpClient, setup, agentType, onComplete }: Props) {
+export interface AgentHandle {
+  cancel: () => void;
+}
+
+export function Agent({ mcpClient, setup, agentType, onComplete, ref }: Props) {
   const agent = useAgent({
     mcpClient,
-    reasoning: setup.config.reasoning,
     model: setup.config.model,
     agentType,
   });
 
+  const hasStartedRef = useRef(false);
+
+  useImperativeHandle(ref, () => ({
+    cancel: agent.cancel,
+  }));
+
   // Auto-start the test when component mounts
   useEffect(() => {
-    if (agent.isReady && agent.messages.length === 0) {
+    if (agent.isReady && !hasStartedRef.current) {
+      hasStartedRef.current = true;
       agent
-        .runTask(setup.prompt)
+        .runTask(setup.prompt, setup.testCase?.validator)
         .then((result) => {
           onComplete?.(result.metrics);
         })

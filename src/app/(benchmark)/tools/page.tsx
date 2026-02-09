@@ -7,79 +7,30 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  ArrowLeft,
-  Box,
-  Boxes,
-  Database,
-  Loader2,
-  Package,
-  ShoppingCart,
-  Users,
-  Wrench,
-} from "lucide-react";
+import { ArrowLeft, Box, Boxes, Database, Loader2, Wrench } from "lucide-react";
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
-  AVAILABLE_TOOLS,
-  getSelectedToolsAPI,
-} from "@/benchmark/tools/tools-api-def";
+  INTERFACE_DEFINITIONS,
+  TOOL_DEFINITIONS,
+} from "@/benchmark/code-approach/tools-api-def";
+import {
+  getToolsAPI,
+  getInterfaceColor,
+  getToolColor,
+  snakeToCamel,
+} from "@/benchmark/code-approach/api";
 import { CodeBlock } from "@/components/benchmark/code";
 import { FlowNodeCard } from "@/components/benchmark/agent-flow/flow-node";
 import { formatJs } from "@/lib/format-code";
 
-const categoryConfig = {
-  customer: { icon: Users, color: "blue" as const, label: "Customer" },
-  product: { icon: Package, color: "green" as const, label: "Product" },
-  order: { icon: ShoppingCart, color: "violet" as const, label: "Order" },
-} as const;
-
-const interfaces = [
-  {
-    name: "Customer",
-    icon: Users,
-    color: "blue" as const,
-    code: `interface Customer {
-  id: string;
-  name: string;
-  email: string;
-  address: string;
-  createdAt: string; // ISO date string
-}`,
-  },
-  {
-    name: "Product",
-    icon: Package,
-    color: "green" as const,
-    code: `interface Product {
-  id: string;
-  name: string;
-  description: string;
-  price: number; // Price in Cent
-  stock: number;
-  createdAt: string; // ISO date string
-}`,
-  },
-  {
-    name: "Order",
-    icon: ShoppingCart,
-    color: "violet" as const,
-    code: `interface Order {
-  id: string;
-  customerId: string;
-  orderDate: string; // ISO date string
-  total: number; // Total price in Cent
-  status: string;
-}`,
-  },
-];
-
-function getToolCategory(toolName: string): keyof typeof categoryConfig {
-  if (toolName.includes("customer")) return "customer";
-  if (toolName.includes("product") || toolName.includes("inventory"))
-    return "product";
-  return "order";
-}
+const interfaceEntries = Object.entries(INTERFACE_DEFINITIONS).map(
+  ([name, code]) => ({
+    name,
+    code,
+    color: getInterfaceColor(name),
+  }),
+);
 
 function ToolCard({
   name,
@@ -90,15 +41,9 @@ function ToolCard({
   description?: string;
   inputSchema?: Record<string, unknown>;
 }) {
-  const category = getToolCategory(name);
-  const config = categoryConfig[category];
-
-  const signature = useMemo(() => {
-    if (!AVAILABLE_TOOLS.includes(name as (typeof AVAILABLE_TOOLS)[number])) {
-      return null;
-    }
-    return getSelectedToolsAPI([name]);
-  }, [name]);
+  const camelName = snakeToCamel(name);
+  const color = getToolColor(camelName);
+  const signature = TOOL_DEFINITIONS[camelName];
 
   const schemaJson = useMemo(
     () => (inputSchema ? JSON.stringify(inputSchema, null, 2) : null),
@@ -109,7 +54,7 @@ function ToolCard({
     <FlowNodeCard
       icon={Wrench}
       label={name}
-      color={config.color}
+      color={color}
       content={
         <>
           {description && (
@@ -152,6 +97,10 @@ export default function ToolsPage() {
   const { toolCall, isConnected, isConnecting } = useMcpClients();
   const tools = toolCall.tools;
 
+  useEffect(() => {
+    console.log(getToolsAPI());
+  }, []);
+
   return (
     <div className="bg-muted max-h-dvh w-full">
       <HeaderBar />
@@ -164,27 +113,25 @@ export default function ToolsPage() {
                 Interfaces
               </h2>
               <span className="text-muted-foreground text-sm">
-                ({interfaces.length})
+                ({interfaceEntries.length})
               </span>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
-              {interfaces.map((iface) => {
-                return (
-                  <FlowNodeCard
-                    key={iface.name}
-                    icon={iface.icon}
-                    label={iface.name}
-                    color={iface.color}
-                    content={
-                      <CodeBlock
-                        code={formatJs(iface.code)}
-                        language="typescript"
-                        className="h-full flex-1"
-                      />
-                    }
-                  />
-                );
-              })}
+              {interfaceEntries.map((iface) => (
+                <FlowNodeCard
+                  key={iface.name}
+                  icon={Boxes}
+                  label={iface.name}
+                  color={iface.color}
+                  content={
+                    <CodeBlock
+                      code={formatJs(iface.code)}
+                      language="typescript"
+                      className="h-full flex-1"
+                    />
+                  }
+                />
+              ))}
             </div>
           </section>
 

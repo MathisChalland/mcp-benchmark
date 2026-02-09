@@ -3,94 +3,41 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Loader2,
-  CheckCircle2,
-  Clock,
-  ChevronRight,
-  Wrench,
-  X,
-} from "lucide-react";
+import { Loader2, CheckCircle2, ChevronRight, Wrench, X } from "lucide-react";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { CodeBlock } from "../code";
 import { cn } from "@/lib/utils";
 import { formatJs } from "@/lib/format-code";
+import type { ToolCallResult } from "@/benchmark/agent/execute-tool-calls";
+import type { ChatCompletionMessageFunctionToolCall } from "openai/resources";
 
-export interface ToolCallInfo {
-  id: string;
-  name: string;
-  arguments: string;
-  response?: string;
-  error?: string;
-}
+export type ToolCallWithResult = ChatCompletionMessageFunctionToolCall & {
+  result?: ToolCallResult;
+};
 
-function parseToolResponse(response?: string): {
-  error?: string;
-  result?: string;
-} {
-  if (!response) return {};
-
-  try {
-    const parsed = JSON.parse(response) as unknown;
-    if (
-      parsed &&
-      typeof parsed === "object" &&
-      "error" in parsed &&
-      parsed.error
-    ) {
-      const typedParsed = parsed as { error: unknown; result?: unknown };
-      return {
-        error:
-          typeof typedParsed.error === "string"
-            ? typedParsed.error
-            : JSON.stringify(typedParsed.error, null, 2),
-        result: typedParsed.result
-          ? JSON.stringify(typedParsed.result, null, 2)
-          : undefined,
-      };
-    }
-  } catch {}
-
-  return { result: response };
-}
-
-function formatCode(code: string, language: "json" | "javascript") {
-  if (language === "javascript") return formatJs(code);
-  try {
-    return JSON.stringify(JSON.parse(code), null, 2);
-  } catch {
-    return code;
-  }
-}
-
-export function ToolCall({ call }: { call: ToolCallInfo }) {
+export function ToolCall({ call }: { call: ToolCallWithResult }) {
   const [isOpen, setIsOpen] = useState(false);
-  const isLoading = !call.response && !call.error;
-  const { result, error } = parseToolResponse(call.response);
-  const errorMessage = call.error ?? error;
-  const canOpen = (result ?? errorMessage) && !isLoading;
+  const isLoading = !call.result;
+  const isError = call.result?.isError ?? false;
+  const content = call.result?.content;
+  const name = call.function.name;
+  const isCodeExecution = name === "execute_code";
 
   const getArguments = (): string => {
-    if (call.name !== "execute_code") return call.arguments;
+    if (!isCodeExecution) return call.function.arguments;
     try {
-      const parsed = JSON.parse(call.arguments) as unknown;
-      if (parsed && typeof parsed === "object" && "code" in parsed) {
-        const typedParsed = parsed as { code?: string };
-        return typedParsed.code ?? call.arguments;
-      }
-      return call.arguments;
+      const parsed = JSON.parse(call.function.arguments) as { code?: string };
+      return parsed.code ?? call.function.arguments;
     } catch {
-      return call.arguments;
+      return call.function.arguments;
     }
   };
 
   const StatusIcon = () => {
     if (isLoading) return <Loader2 className="h-3.5 w-3.5 animate-spin" />;
-    if (errorMessage) return <X className="text-destructive h-3.5 w-3.5" />;
-    if (result)
-      return <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />;
-    return <Clock className="text-muted-foreground h-3.5 w-3.5" />;
+    if (isError) return <X className="text-destructive h-3.5 w-3.5" />;
+    return <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />;
   };
 
   return (
@@ -100,22 +47,20 @@ export function ToolCall({ call }: { call: ToolCallInfo }) {
           className={cn(
             "group bg-secondary border-border flex items-center gap-2 rounded-lg border px-3 py-2 transition-all",
             isLoading && "animate-pulse",
-            !!errorMessage &&
-              !isLoading &&
-              "border-destructive/50 bg-destructive/10",
-            canOpen && "hover:bg-secondary/80 cursor-pointer",
+            isError && !isLoading && "border-destructive/50 bg-destructive/10",
+            !isLoading && "hover:bg-secondary/80 cursor-pointer",
           )}
           disabled={isLoading}
         >
           <StatusIcon />
-          <span className="font-mono text-xs">{call.name}</span>
-          {canOpen && (
+          <span className="font-mono text-xs">{name}</span>
+          {!isLoading && (
             <ChevronRight className="text-muted-foreground group-hover:text-foreground h-3 w-3 transition-colors" />
           )}
         </button>
       </PopoverTrigger>
 
-      {canOpen && (
+      {!isLoading && (
         <PopoverContent
           className="bg-background mb-5 min-h-fit w-fit max-w-2xl min-w-125 overflow-hidden p-0"
           align="start"
@@ -126,46 +71,52 @@ export function ToolCall({ call }: { call: ToolCallInfo }) {
               <Wrench
                 className={cn(
                   "size-4",
-                  !!errorMessage ? "text-destructive" : "text-emerald-500",
+                  isError ? "text-destructive" : "text-emerald-500",
                 )}
               />
-              <span className="font-mono text-sm font-medium">{call.name}</span>
+              <span className="font-mono text-sm font-medium">{name}</span>
             </div>
             <Badge
               variant="secondary"
               className={cn(
                 "text-[10px]",
-                !!errorMessage
+                isError
                   ? "bg-destructive/10 text-destructive"
                   : "bg-emerald-100 text-emerald-700",
               )}
             >
-              {!!errorMessage ? "Failed" : "Completed"}
+              {isError ? "Failed" : "Completed"}
             </Badge>
           </div>
 
           <ContentBlock
             code={getArguments()}
-            language={call.name === "execute_code" ? "javascript" : "json"}
+            language={isCodeExecution ? "javascript" : "json"}
             label="Arguments"
-            border
+            border={!!content}
           />
 
-          {result && (
-            <ContentBlock code={result} label="Response" language="json" />
-          )}
-          {errorMessage && (
+          {content && (
             <ContentBlock
-              code={errorMessage}
-              label="Error"
+              code={content}
               language="json"
-              isError
+              label={isError ? "Error" : "Response"}
+              isError={isError}
             />
           )}
         </PopoverContent>
       )}
     </Popover>
   );
+}
+
+function formatCode(code: string, language: "json" | "javascript"): string {
+  if (language === "javascript") return formatJs(code);
+  try {
+    return JSON.stringify(JSON.parse(code), null, 2);
+  } catch {
+    return code;
+  }
 }
 
 function ContentBlock({

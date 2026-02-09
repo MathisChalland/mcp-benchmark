@@ -1,335 +1,132 @@
-import { useCallback, useRef, useState } from "react";
-import { useMcpClient, type Tool } from "@/hooks/useMcpClient";
-import { useMetricTracker, type TaskMetrics } from "@/hooks/useMetricTracker";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { type useMcpClient } from "@/hooks/useMcpClient";
 import { api } from "@/trpc/react";
-import type { ToolCall, ToolContent } from "@/app/api/mcp/types";
 import type { FlowNode } from "@/components/benchmark/agent-flow/flow-node";
-import type {
-  ChatCompletionMessageParam,
-  ChatCompletionMessageToolCall,
-  ChatCompletionTool,
-} from "openai/resources";
-import type {
-  Effort,
-  LLMModelKey,
-} from "@/components/benchmark/setup/llm-models";
-
-interface TaskResult {
-  success: boolean;
-  answer?: string | null;
-  error?: string;
-  iterations: number;
-  metrics: TaskMetrics;
-  messages: ChatCompletionMessageParam[];
-}
-
-type AgentStatus =
-  | "initializing"
-  | "idle"
-  | "processing"
-  | "finished"
-  | "error";
+import type { LLMModelKey } from "@/components/benchmark/setup/llm-models";
+import {
+  runAgentLoop,
+  type AgentLoopResult,
+  type AgentLoopEvents,
+} from "@/benchmark/agent/agent-loop";
+import type { TestCaseValidator } from "@/benchmark/validator";
 
 interface UseAgentOptions {
   mcpClient: ReturnType<typeof useMcpClient>;
   model?: LLMModelKey;
-  reasoning?: Effort;
   maxIterations?: number;
   agentType?: string;
-  onToolCall?: (toolName: string, args: Record<string, unknown>) => void;
-  onIteration?: (
-    iteration: number,
-    message: ChatCompletionMessageParam,
-  ) => void;
 }
+
+const appendNode = (node: FlowNode) => (prev: FlowNode[]) => [...prev, node];
+
+const updateLastNode =
+  <T extends FlowNode["type"]>(
+    type: T,
+    updater: (node: Extract<FlowNode, { type: T }>) => FlowNode,
+  ) =>
+  (prev: FlowNode[]): FlowNode[] => {
+    const lastNode = prev.at(-1);
+    if (lastNode?.type !== type) return prev;
+    return [
+      ...prev.slice(0, -1),
+      updater(lastNode as Extract<FlowNode, { type: T }>),
+    ];
+  };
+
+const createInitialFlow = (agentType?: string): FlowNode[] =>
+  agentType ? [{ type: "agent", agentType }] : [];
 
 export function useAgent({
   mcpClient,
   model = "openai/gpt-5-mini",
-  reasoning = "minimal",
   maxIterations = 15,
   agentType,
 }: UseAgentOptions) {
-  const metricTracker = useMetricTracker();
   const utils = api.useUtils();
 
-  const [messages, setMessages] = useState<ChatCompletionMessageParam[]>([]);
-  const [currentIteration, setCurrentIteration] = useState(0);
-  const [result, setResult] = useState<TaskResult | null>(null);
+  const [result, setResult] = useState<AgentLoopResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [flow, setFlow] = useState<FlowNode[]>(
-    agentType ? [{ type: "agent", agentType }] : [],
+  const [flow, setFlow] = useState<FlowNode[]>(() =>
+    createInitialFlow(agentType),
   );
-
-  const error = result?.error ?? mcpClient.error ?? null;
-
-  const isReady = mcpClient.status === "connected";
-
-  const status: AgentStatus = !isReady
-    ? "initializing"
-    : isProcessing
-      ? "processing"
-      : error
-        ? "error"
-        : result
-          ? "finished"
-          : "idle";
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const isRunningRef = useRef(false);
 
-  const checkAborted = useCallback(() => {
-    if (abortControllerRef.current?.signal.aborted) {
-      throw new Error("Task cancelled");
-    }
-  }, []);
+  const isReady = mcpClient.status === "connected";
+  const error = result?.error ?? mcpClient.error ?? null;
 
-  const executeTool = useCallback(
-    async (
-      toolCall: ToolCall,
-    ): Promise<{ result: string; error?: boolean }> => {
-      const args = JSON.parse(toolCall.function.arguments) as Record<
-        string,
-        unknown
-      >;
-
-      try {
-        const result = await mcpClient.callTool<{ content: ToolContent[] }>(
-          toolCall.function.name,
-          args,
+  const agentEvents = useMemo<AgentLoopEvents>(
+    () => ({
+      onLlmCall: (callNumber) => {
+        setFlow(appendNode({ type: "llm-call", callNumber, isLoading: true }));
+      },
+      onLlmCallResult: () => {
+        setFlow(
+          updateLastNode("llm-call", (node) => ({ ...node, isLoading: false })),
         );
-        metricTracker.recordToolCall();
-        return { result: extractTextFromToolResult(result.content) };
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : String(err);
-        return {
-          result: `Error calling ${toolCall.function.name}: ${errorMsg}`,
-          error: true,
-        };
-      }
-    },
-    [mcpClient, metricTracker],
-  );
-
-  const executeToolCalls = useCallback(
-    async (
-      toolCalls: ChatCompletionMessageToolCall[],
-      taskMessages: ChatCompletionMessageParam[],
-    ) => {
-      const functionCalls = toolCalls.filter((tc) => tc.type === "function");
-      setFlow((prev) => [
-        ...prev,
-        {
-          type: "tool-calls",
-          calls: functionCalls.map((tc) => ({
-            id: tc.id,
-            name: tc.function.name,
-            arguments: tc.function.arguments,
+      },
+      onReasoning: (content) => {
+        setFlow(appendNode({ type: "reasoning", content }));
+      },
+      onResponse: (content) => {
+        setFlow(appendNode({ type: "response", content }));
+      },
+      onToolCalls: (calls) => {
+        setFlow(appendNode({ type: "tool-calls", calls }));
+      },
+      onToolResult: (toolCall, result) => {
+        setFlow(
+          updateLastNode("tool-calls", (node) => ({
+            ...node,
+            calls: node.calls.map((call) =>
+              call.id === toolCall.id ? { ...call, result } : call,
+            ),
           })),
-        },
-      ]);
-      await Promise.all(
-        functionCalls.map(async (toolCall) => {
-          checkAborted();
-
-          const result = await executeTool(toolCall);
-          const toolMessage: ChatCompletionMessageParam = {
-            role: "tool",
-            tool_call_id: toolCall.id,
-            content: result.result,
-          };
-
-          setFlow((prev) => {
-            const toolCallsNode = prev[prev.length - 1];
-            if (toolCallsNode?.type !== "tool-calls") {
-              throw new Error("Expected tool-calls node");
-            }
-            const updatedCalls = toolCallsNode.calls.map((call) =>
-              call.id === toolCall.id
-                ? {
-                    ...call,
-                    ...(result.error
-                      ? { error: result.result }
-                      : { response: result.result }),
-                  }
-                : call,
-            );
-            return [
-              ...prev.slice(0, -1),
-              { ...toolCallsNode, calls: updatedCalls },
-            ];
-          });
-
-          taskMessages.push(toolMessage);
-          setMessages([...taskMessages]);
-          return Promise.resolve();
-        }),
-      );
-    },
-    [checkAborted, executeTool, setFlow],
-  );
-
-  const callLLM = useCallback(
-    async (taskMessages: ChatCompletionMessageParam[]) => {
-      setFlow((prev) => [
-        ...prev,
-        {
-          type: "llm-call",
-          callNumber: prev.filter((n) => n.type === "llm-call").length + 1,
-          isLoading: true,
-        },
-      ]);
-      const response = await utils.client.llm.chat.mutate({
-        model,
-        //reasoning,
-        messages: taskMessages,
-        tools: convertToOpenAITools(mcpClient.tools),
-      });
-      setFlow((prev) => {
-        const lastNode = prev[prev.length - 1];
-        if (lastNode?.type !== "llm-call") {
-          throw new Error("Expected llm-call node");
-        }
-        return [...prev.slice(0, -1), { ...lastNode, isLoading: false }];
-      });
-
-      metricTracker.recordLLMCall(response.usage);
-
-      const assistantMessage = response.choices[0]?.message;
-      if (!assistantMessage) {
-        throw new Error("No response from LLM");
-      }
-
-      const newMessage: ChatCompletionMessageParam = {
-        role: "assistant",
-        content: assistantMessage.content,
-        tool_calls: assistantMessage.tool_calls,
-      };
-
-      // OpenRouter may include reasoning in extended response
-      const extendedMessage = assistantMessage as {
-        reasoning?: string;
-      };
-      const reasoningContent = extendedMessage.reasoning;
-
-      if (reasoningContent) {
-        setFlow((prev) => [
-          ...prev,
-          { type: "reasoning", content: reasoningContent },
-        ]);
-      }
-
-      if (
-        newMessage.content &&
-        typeof newMessage.content === "string" &&
-        newMessage.content.trim()
-      ) {
-        const content = newMessage.content;
-        setFlow((prev) => [...prev, { type: "response", content }]);
-      }
-
-      taskMessages.push(newMessage);
-      setMessages([...taskMessages]);
-
-      return assistantMessage;
-    },
-    [mcpClient.tools, metricTracker, model, utils],
-  );
-
-  const finalizeTask = useCallback(
-    (
-      taskMessages: ChatCompletionMessageParam[],
-      iterations: number,
-      outcome:
-        | { success: true; answer: string | null }
-        | { success: false; error: string },
-    ): TaskResult => {
-      metricTracker.stop();
-      isRunningRef.current = false;
-
-      const taskResult = {
-        ...outcome,
-        iterations,
-        metrics: metricTracker.getMetrics(),
-        messages: taskMessages,
-      };
-
-      setResult(taskResult);
-      setIsProcessing(false);
-
-      return taskResult;
-    },
-    [metricTracker],
+        );
+      },
+    }),
+    [],
   );
 
   const runTask = useCallback(
-    async (instruction: string): Promise<TaskResult> => {
+    async (
+      instruction: string,
+      validator?: TestCaseValidator,
+    ): Promise<AgentLoopResult> => {
       if (isRunningRef.current) {
-        return {
-          success: false,
-          error: "Task already running",
-          iterations: 0,
-          metrics: metricTracker.getMetrics(),
-          messages: [],
-        };
+        throw new Error("Agent is already running a task");
       }
+
       isRunningRef.current = true;
-      setIsProcessing(true);
-      setCurrentIteration(0);
-      metricTracker.start();
       abortControllerRef.current = new AbortController();
-
-      const taskMessages: ChatCompletionMessageParam[] = [];
-      if (mcpClient.systemPrompt) {
-        taskMessages.push({ role: "system", content: mcpClient.systemPrompt });
-      }
-      taskMessages.push({ role: "user", content: instruction });
-      setMessages([...taskMessages]);
-
-      let iterations = 0;
+      setIsProcessing(true);
+      setResult(null);
 
       try {
-        while (iterations < maxIterations) {
-          checkAborted();
-          iterations++;
-          setCurrentIteration(iterations);
-
-          const assistantMessage = await callLLM(taskMessages);
-
-          if (!assistantMessage.tool_calls?.length) {
-            const answer =
-              typeof assistantMessage.content === "string"
-                ? assistantMessage.content
-                : null;
-            return finalizeTask(taskMessages, iterations, {
-              success: true,
-              answer,
-            });
-          }
-
-          await executeToolCalls(assistantMessage.tool_calls, taskMessages);
-        }
-
-        return finalizeTask(taskMessages, iterations, {
-          success: false,
-          error: "Max iterations reached",
+        const loopResult = await runAgentLoop({
+          config: {
+            instruction,
+            validator,
+            systemPrompt: mcpClient.systemPrompt,
+            tools: mcpClient.tools,
+            maxIterations,
+            model,
+            signal: abortControllerRef.current.signal,
+            llmCaller: utils.client.llm.chat.mutate,
+            toolCaller: mcpClient.callTool,
+          },
+          events: agentEvents,
         });
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : String(err);
-        return finalizeTask(taskMessages, iterations, {
-          success: false,
-          error: errorMessage,
-        });
+
+        setResult(loopResult);
+        return loopResult;
+      } finally {
+        isRunningRef.current = false;
+        setIsProcessing(false);
       }
     },
-    [
-      maxIterations,
-      checkAborted,
-      callLLM,
-      executeToolCalls,
-      finalizeTask,
-      metricTracker,
-    ],
+    [maxIterations, model, mcpClient, utils, agentEvents],
   );
 
   const cancel = useCallback(() => {
@@ -337,46 +134,27 @@ export function useAgent({
   }, []);
 
   const reset = useCallback(() => {
+    isRunningRef.current = false;
+    abortControllerRef.current = null;
     setIsProcessing(false);
-    setMessages([]);
-    setCurrentIteration(0);
     setResult(null);
-    setFlow(agentType ? [{ type: "agent", agentType }] : []);
-    metricTracker.reset();
-  }, [metricTracker, agentType]);
+    setFlow(createInitialFlow(agentType));
+  }, [agentType]);
 
   return {
-    status: status,
-    messages,
     flow,
-    currentIteration,
     result,
-    error: error ?? mcpClient.error,
-    metrics: metricTracker.metrics,
+    error,
+    metrics: result?.metrics,
+
     tools: mcpClient.tools,
     mcpStatus: mcpClient.status,
+
     runTask,
     cancel,
     reset,
+
     isReady,
-    isProcessing: status === "processing",
+    isProcessing,
   };
-}
-
-function convertToOpenAITools(tools: Tool[]): ChatCompletionTool[] {
-  return tools.map((tool) => ({
-    type: "function" as const,
-    function: {
-      name: tool.name,
-      description: tool.description ?? "",
-      parameters: tool.inputSchema ?? { type: "object", properties: {} },
-    },
-  }));
-}
-
-function extractTextFromToolResult(content: ToolContent[]): string {
-  return content
-    .filter((c) => c.type === "text" && c.text)
-    .map((c) => c.text)
-    .join("\n");
 }

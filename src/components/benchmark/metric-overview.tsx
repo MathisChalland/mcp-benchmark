@@ -1,5 +1,12 @@
-import { Clock, Cpu, MessageSquare, Wrench, Zap } from "lucide-react";
-import type { TaskMetrics } from "@/hooks/useMetricTracker";
+import {
+  BadgeCheck,
+  Clock,
+  Cpu,
+  MessageSquare,
+  Wrench,
+  Zap,
+} from "lucide-react";
+import type { TaskMetrics } from "@/benchmark/agent/metric-tracker";
 import { cn } from "@/lib/utils";
 import type { LLMModelKey } from "@/components/benchmark/setup/llm-models";
 import { LLM_MODELS } from "@/components/benchmark/setup/llm-models";
@@ -33,9 +40,9 @@ export function MetricOverview({
     if (!modelConfig) return 0;
 
     const inputCost =
-      (metrics.promptTokens / 1_000_000) * modelConfig.tokenCost.input;
+      (metrics.inputTokens / 1_000_000) * modelConfig.tokenCost.input;
     const outputCost =
-      (metrics.completionTokens / 1_000_000) * modelConfig.tokenCost.output;
+      (metrics.outputTokens / 1_000_000) * modelConfig.tokenCost.output;
     return (inputCost + outputCost) * 100;
   };
 
@@ -75,12 +82,12 @@ export function MetricOverview({
         <MetricItem
           icon={Cpu}
           label="Prompt Tokens"
-          value={formatNumber(metrics.promptTokens)}
+          value={formatNumber(metrics.inputTokens)}
         />
         <MetricItem
           icon={Cpu}
           label="Completion Tokens"
-          value={formatNumber(metrics.completionTokens)}
+          value={formatNumber(metrics.outputTokens)}
         />
         <MetricItem
           icon={Cpu}
@@ -91,6 +98,17 @@ export function MetricOverview({
           icon={Zap}
           label="Cost in cents"
           value={formatCost(calculateCost())}
+        />
+        <MetricItem
+          icon={BadgeCheck}
+          label="Success"
+          value={
+            metrics.success === undefined
+              ? "N/A"
+              : metrics.success
+                ? "Yes"
+                : "No"
+          }
         />
       </div>
     </div>

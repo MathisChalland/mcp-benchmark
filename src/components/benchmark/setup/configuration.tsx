@@ -11,7 +11,6 @@ import { type TestSetupConfig } from "./useTestSetup";
 import { Separator } from "@/components/ui/separator";
 import { MCP_SERVERS } from "@/contexts/useMcpClientContext";
 import {
-  effort,
   LLM_MODELS,
   type Effort,
   type LLMModelKey,
@@ -26,7 +25,6 @@ interface ConfigurationProps {
 
 export function Configuration({
   model,
-  reasoning,
   mcpServer,
   onChange,
 }: ConfigurationProps) {

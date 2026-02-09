@@ -5,7 +5,7 @@ import { ArrowUp, X } from "lucide-react";
 import { Configuration } from "./configuration";
 import { cn } from "@/lib/utils";
 import { getGroupedTests } from "@/benchmark/test-cases";
-import { useTestSetup, type TestSetupResult } from "./useTestSetup";
+import { type useTestSetup, type TestSetupResult } from "./useTestSetup";
 import { toast } from "sonner";
 
 interface SetupBarProps {
@@ -72,7 +72,9 @@ export function SetupBar({ setup, onSubmit }: SetupBarProps) {
           <div className="group flex">
             <Select
               groupedOptions={getGroupedTests().map((group) => ({
-                groupLabel: group.label,
+                groupLabel:
+                  group.category.charAt(0).toUpperCase() +
+                  group.category.slice(1),
                 options: group.tests.map((test) => ({
                   label: test.id,
                   value: test.id,
