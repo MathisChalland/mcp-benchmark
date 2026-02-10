@@ -5,11 +5,11 @@ import { db } from "@/server/db";
 export const getOrderDetailsSchema = {
   inputSchema: {
     orderId: z.string().describe("The ID of the order to retrieve details for"),
-    includeProduct: z
-      .boolean()
-      .optional()
-      .default(false)
-      .describe("Whether to include product information for each order detail"),
+    // includeProduct: z
+    //   .boolean()
+    //   .optional()
+    //   .default(false)
+    //   .describe("Whether to include product information for each order detail"),
   },
 };
 
@@ -26,18 +26,16 @@ export const getOrderDetailsToolDefinition = {
  */
 export async function getOrderDetails({
   orderId,
-  includeProduct = false,
 }: {
   orderId: string;
-  includeProduct?: boolean;
-}): Promise<Array<OrderDetail & { product?: Product }>> {
+}): Promise<Array<OrderDetail>> {
   const orderDetails = await db.orderDetail.findMany({
     where: {
       orderId: orderId,
     },
-    include: {
-      product: includeProduct,
-    },
+    // include: {
+    //   product: includeProduct,
+    // },
   });
 
   if (orderDetails.length === 0) {
