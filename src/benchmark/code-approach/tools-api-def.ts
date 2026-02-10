@@ -25,7 +25,7 @@ export const INTERFACE_DEFINITIONS: Record<string, string> = {
   unitsInStock: number | null;
   unitsOnOrder: number | null;
   reorderLevel: number | null;
-  discontinued: number;
+  discontinued: boolean;
 }`,
   Order: `interface Order {
   id: string;
@@ -60,7 +60,6 @@ export const INTERFACE_DEFINITIONS: Record<string, string> = {
   extension: string | null;
   notes: string | null;
   reportsToId: string | null;
-  photoPath: string | null;
 }`,
   Supplier: `interface Supplier {
   id: string;
@@ -335,7 +334,7 @@ declare function getManyProducts({
   searchTerm?: string;
   categoryId?: string;
   supplierId?: string;
-  discontinued?: number;
+  discontinued?: boolean;
   minPrice?: number;
   maxPrice?: number;
   minStock?: number;
