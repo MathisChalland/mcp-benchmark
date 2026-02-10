@@ -12,10 +12,11 @@ import { getProductSales } from "../tools/product/getProductSales";
 import { getSupplierById } from "../tools/supplier/getSupplierById";
 import { getManySuppliers } from "../tools/supplier/getManySuppliers";
 import { getShipperById } from "../tools/shipper/getShipperById";
-import { getAllShippers } from "../tools/shipper/getAllShippers";
+import { getManyShippers } from "../tools/shipper/getManyShippers";
 import { getOrderDetails } from "../tools/order/getOrderDetails";
+import { getManyOrderDetails } from "../tools/order/getManyOrderDetails";
 import { getCategoryById } from "../tools/category/getCategoryById";
-import { getAllCategories } from "../tools/category/getAllCategories";
+import { getManyCategories } from "../tools/category/getManyCategories";
 import { getToolsAPI } from "./api";
 
 export const executeCodeSchema = {
@@ -74,13 +75,14 @@ export async function execute_code(code: string): Promise<{
     getOrderById,
     getManyOrders,
     getOrderDetails,
+    getManyOrderDetails,
     getOrderTotal,
     getSupplierById,
     getManySuppliers,
     getShipperById,
-    getAllShippers,
+    getManyShippers,
     getCategoryById,
-    getAllCategories,
+    getManyCategories,
     console: {
       log: (...args: unknown[]) => {
         logs.push(args.map(String).join(" "));

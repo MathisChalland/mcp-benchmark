@@ -1,9 +1,9 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import {
-  getAllCategories,
-  getAllCategoriesToolDefinition,
-} from "@/benchmark/tools/category/getAllCategories";
+  getManyCategories,
+  getManyCategoriesToolDefinition,
+} from "@/benchmark/tools/category/getManyCategories";
 import {
   getCategoryById,
   getCategoryByIdToolDefinition,
@@ -40,6 +40,10 @@ import {
   getOrderDetailsToolDefinition,
 } from "@/benchmark/tools/order/getOrderDetails";
 import {
+  getManyOrderDetails,
+  getManyOrderDetailsToolDefinition,
+} from "@/benchmark/tools/order/getManyOrderDetails";
+import {
   getOrderTotal,
   getOrderTotalToolDefinition,
 } from "@/benchmark/tools/order/getOrderTotal";
@@ -58,9 +62,9 @@ import {
 } from "@/benchmark/tools/product/getProductSales";
 
 import {
-  getAllShippers,
-  getAllShippersToolDefinition,
-} from "@/benchmark/tools/shipper/getAllShippers";
+  getManyShippers,
+  getManyShippersToolDefinition,
+} from "@/benchmark/tools/shipper/getManyShippers";
 import {
   getShipperById,
   getShipperByIdToolDefinition,
@@ -165,6 +169,17 @@ export function setupToolCallServer(server: McpServer) {
   );
 
   server.registerTool(
+    "get_many_order_details",
+    getManyOrderDetailsToolDefinition,
+    async (props) => {
+      const details = await getManyOrderDetails(props);
+      return {
+        content: [{ type: "text", text: JSON.stringify(details) }],
+      };
+    },
+  );
+
+  server.registerTool(
     "get_order_total",
     getOrderTotalToolDefinition,
     async (props) => {
@@ -220,10 +235,10 @@ export function setupToolCallServer(server: McpServer) {
   );
 
   server.registerTool(
-    "get_all_shippers",
-    getAllShippersToolDefinition,
-    async () => {
-      const shippers = await getAllShippers();
+    "get_many_shippers",
+    getManyShippersToolDefinition,
+    async (props) => {
+      const shippers = await getManyShippers(props);
       return {
         content: [{ type: "text", text: JSON.stringify(shippers) }],
       };
@@ -242,10 +257,10 @@ export function setupToolCallServer(server: McpServer) {
   );
 
   server.registerTool(
-    "get_all_categories",
-    getAllCategoriesToolDefinition,
-    async () => {
-      const categories = await getAllCategories();
+    "get_many_categories",
+    getManyCategoriesToolDefinition,
+    async (props) => {
+      const categories = await getManyCategories(props);
       return {
         content: [{ type: "text", text: JSON.stringify(categories) }],
       };

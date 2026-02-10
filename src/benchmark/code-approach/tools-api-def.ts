@@ -108,10 +108,6 @@ export const INTERFACE_DEFINITIONS: Record<string, string> = {
 };
 
 export const TOOL_DEFINITIONS: Record<string, string> = {
-  getAllCategories: `/**
- * Retrieves all categories from the database
- */
-declare function getAllCategories(): Promise<Category[]>;`,
   getCategoryById: `/**
  * Retrieves a category by its ID from the database
  */
@@ -120,6 +116,21 @@ declare function getCategoryById({
 }: {
   categoryId: string;
 }): Promise<Category>;`,
+  getManyCategories: `/**
+ * Search and filter categories from the database with sorting and pagination
+ */
+declare function getManyCategories({
+  searchTerm,
+  limit = 20,
+  offset = 0,
+}: {
+  searchTerm?: string;
+  limit?: number /*max 100*/;
+  offset?: number;
+}): Promise<{
+  categories: Array<Category>;
+  hasMore: boolean;
+}>;`,
   getCustomerById: `/**
  * Retrieves a customer by their ID or Email from the database
  */
@@ -209,6 +220,35 @@ declare function getManyEmployees({
   employees: Employee[];
   hasMore: boolean;
 }>;`,
+  getManyOrderDetails: `/**
+ * Search and filter order details (line items) from the database with sorting and pagination
+ */
+declare function getManyOrderDetails({
+  customerId,
+  productId,
+  minUnitPrice,
+  maxUnitPrice,
+  minQuantity,
+  maxQuantity,
+  sortBy = "orderId",
+  sortOrder = "asc",
+  limit = 20,
+  offset = 0,
+}: {
+  customerId?: string;
+  productId?: string;
+  minUnitPrice?: number;
+  maxUnitPrice?: number;
+  minQuantity?: number;
+  maxQuantity?: number;
+  sortBy?: "orderId" | "productId" | "unitPrice" | "quantity" | "discount";
+  sortOrder?: "asc" | "desc";
+  limit?: number /*max 100*/;
+  offset?: number;
+}): Promise<{
+  orderDetails: Array<OrderDetail>;
+  hasMore: boolean;
+}>;`,
   getManyOrders: `/**
  * Retrieves multiple orders from the database with filtering, sorting, and pagination
  */
@@ -272,32 +312,18 @@ declare function getManyOrders({
  */
 declare function getOrderById({
   orderId,
-  includeDetails = false,
-  includeCustomer = false,
-  includeEmployee = false,
 }: {
   orderId: string;
-  includeDetails?: boolean;
-  includeCustomer?: boolean;
-  includeEmployee?: boolean;
-}): Promise<
-  Order & {
-    details?: OrderDetail[];
-    customer?: Customer | null;
-    employee?: Employee | null;
-  }
->;`,
+}): Promise<Order>;`,
   getOrderDetails: `/**
  * Retrieves order details (line items) for a specific order
  * Optionally includes product information for each line item
  */
 declare function getOrderDetails({
   orderId,
-  includeProduct = false,
 }: {
   orderId: string;
-  includeProduct?: boolean;
-}): Promise<Array<OrderDetail & { product?: Product }>>;`,
+}): Promise<Array<OrderDetail>>;`,
   getOrderTotal: `/**
  * Calculates the total for an order based on order details
  * Formula: sum of (unitPrice * quantity * (1 - discount)) + freight
@@ -391,10 +417,21 @@ declare function getProductSales({
   endDate: string | null;
   product?: Product;
 }>;`,
-  getAllShippers: `/**
- * Retrieves all shippers from the database
+  getManyShippers: `/**
+ * Search and filter shippers from the database with sorting and pagination
  */
-declare function getAllShippers(): Promise<Shipper[]>;`,
+declare function getManyShippers({
+  searchTerm,
+  limit = 20,
+  offset = 0,
+}: {
+  searchTerm?: string;
+  limit?: number /*max 100*/;
+  offset?: number;
+}): Promise<{
+  shippers: Array<Shipper>;
+  hasMore: boolean;
+}>;`,
   getShipperById: `/**
  * Retrieves a shipper by its ID from the database
  */
@@ -440,12 +477,13 @@ declare function getSupplierById({
 };
 
 export const AVAILABLE_TOOLS = [
-  "getAllCategories",
   "getCategoryById",
+  "getManyCategories",
   "getCustomerById",
   "getManyCustomers",
   "getEmployeeById",
   "getManyEmployees",
+  "getManyOrderDetails",
   "getManyOrders",
   "getOrderById",
   "getOrderDetails",
@@ -453,7 +491,7 @@ export const AVAILABLE_TOOLS = [
   "getManyProducts",
   "getProductById",
   "getProductSales",
-  "getAllShippers",
+  "getManyShippers",
   "getShipperById",
   "getManySuppliers",
   "getSupplierById",
