@@ -1,11 +1,20 @@
 import type { CompletionUsage } from "openai/resources";
 import { validateResponse, type TestCaseValidator } from "../validator";
+import {
+  LLM_MODELS,
+  type LLMModel,
+  type LLMModelKey,
+} from "@/components/benchmark/setup/llm-models";
 
 export interface TokenUsage {
   totalTokens: number;
   inputTokens: number;
   outputTokens: number;
   reasoningTokens: number;
+  cost: {
+    cents: number;
+    isEstimated: boolean | undefined;
+  };
 }
 
 export interface LLMMetrics extends TokenUsage {
@@ -19,15 +28,6 @@ export interface TaskMetrics extends LLMMetrics {
   success: boolean | undefined;
 }
 
-export function extractTokenUsage(usage: CompletionUsage): TokenUsage {
-  return {
-    totalTokens: usage.total_tokens,
-    inputTokens: usage.prompt_tokens,
-    outputTokens: usage.completion_tokens,
-    reasoningTokens: usage.completion_tokens_details?.reasoning_tokens ?? 0,
-  };
-}
-
 const INITIAL_METRICS: TaskMetrics = {
   totalTokens: 0,
   inputTokens: 0,
@@ -36,6 +36,10 @@ const INITIAL_METRICS: TaskMetrics = {
   durationMs: 0,
   toolCalls: 0,
   llmCalls: 0,
+  cost: {
+    cents: 0,
+    isEstimated: undefined,
+  },
   finished: false,
   success: undefined,
 };
@@ -64,6 +68,10 @@ export class MetricTracker {
     this.metrics.outputTokens += metrics.outputTokens ?? 0;
     this.metrics.reasoningTokens += metrics.reasoningTokens ?? 0;
     this.metrics.toolCalls += metrics.toolCalls ?? 0;
+    this.metrics.cost = {
+      cents: this.metrics.cost.cents + (metrics.cost?.cents ?? 0),
+      isEstimated: this.metrics.cost.isEstimated || metrics.cost?.isEstimated, // true if any part is estimated
+    };
   }
 
   finish() {
@@ -89,4 +97,37 @@ export class MetricTracker {
   getCallCount() {
     return this.metrics.llmCalls;
   }
+}
+
+export function extractTokenUsage(
+  usage: CompletionUsage & { cost?: number },
+  model: LLMModelKey,
+): TokenUsage {
+  const modelInfo = LLM_MODELS[model];
+
+  const cents = usage.cost
+    ? usage.cost * 100
+    : estimateCost(usage.prompt_tokens, usage.completion_tokens, modelInfo);
+  const isEstimated = usage.cost === undefined;
+
+  return {
+    totalTokens: usage.total_tokens,
+    inputTokens: usage.prompt_tokens,
+    outputTokens: usage.completion_tokens,
+    reasoningTokens: usage.completion_tokens_details?.reasoning_tokens ?? 0,
+    cost: {
+      cents,
+      isEstimated,
+    },
+  };
+}
+
+function estimateCost(
+  inputTokens: number,
+  outputTokens: number,
+  model: LLMModel,
+) {
+  const inputCost = (inputTokens / 1_000_000) * model.tokenCost.input;
+  const outputCost = (outputTokens / 1_000_000) * model.tokenCost.output;
+  return (inputCost + outputCost) * 100;
 }

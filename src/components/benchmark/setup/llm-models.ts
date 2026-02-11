@@ -28,12 +28,12 @@ export const LLM_MODELS = {
     },
     contextWindow: 200,
   },
-  "openai/gpt-5.1": {
-    name: "GPT-5.1",
+  "openai/gpt-5.2": {
+    name: "GPT-5.2",
     supportsReasoning: true,
     tokenCost: {
-      input: 1.25,
-      output: 10,
+      input: 1.75,
+      output: 14,
     },
     contextWindow: 400,
   },
@@ -76,6 +76,16 @@ export const LLM_MODELS = {
 } as const;
 
 export type LLMModelKey = keyof typeof LLM_MODELS;
+export type LLMModel = (typeof LLM_MODELS)[LLMModelKey];
+// export interface LLMModel {
+//   name: string;
+//   supportsReasoning: boolean;
+//   tokenCost: {
+//     input: number; // cost per million tokens in cents
+//     output: number; // cost per million tokens in cents
+//   };
+//   contextWindow: number; // in thousands of tokens
+// }
 
 export const effort = z.enum([
   "none",

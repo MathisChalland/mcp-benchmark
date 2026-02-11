@@ -36,7 +36,7 @@ export async function callLLM({
   const toolCalls = extractFunctionCalls(assistantMessage);
 
   const metrics = {
-    ...extractTokenUsage(response.usage),
+    ...extractTokenUsage(response.usage, params.model),
     durationMs,
     toolCalls: toolCalls ? toolCalls.length : 0,
   };

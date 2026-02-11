@@ -20,7 +20,7 @@ interface MetricOverviewProps {
 export function MetricOverview({
   metrics,
   serverName,
-  model = "openai/gpt-5-mini",
+  model,
 }: MetricOverviewProps) {
   if (!metrics) {
     return null;
@@ -33,17 +33,6 @@ export function MetricOverview({
 
   const formatNumber = (num: number) => {
     return num.toLocaleString();
-  };
-
-  const calculateCost = () => {
-    const modelConfig = LLM_MODELS[model];
-    if (!modelConfig) return 0;
-
-    const inputCost =
-      (metrics.inputTokens / 1_000_000) * modelConfig.tokenCost.input;
-    const outputCost =
-      (metrics.outputTokens / 1_000_000) * modelConfig.tokenCost.output;
-    return (inputCost + outputCost) * 100;
   };
 
   const formatCost = (cents: number) => {
@@ -97,7 +86,10 @@ export function MetricOverview({
         <MetricItem
           icon={Zap}
           label="Cost in cents"
-          value={formatCost(calculateCost())}
+          value={
+            (metrics.cost.isEstimated ? "~" : "") +
+            formatCost(metrics.cost.cents)
+          }
         />
         <MetricItem
           icon={BadgeCheck}

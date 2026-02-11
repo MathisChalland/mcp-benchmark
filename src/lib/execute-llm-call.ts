@@ -11,7 +11,7 @@ import type {
 } from "openai/resources";
 
 const OPENAI_MODELS: Record<string, string> = {
-  "openai/gpt-5.1": "gpt-5.1-2025-11-13",
+  "openai/gpt-5.2": "gpt-5.2-2025-12-11",
   "openai/gpt-5-mini": "gpt-5-mini-2025-08-07",
   "openai/gpt-5-nano": "gpt-5-nano-2025-08-07",
 };
