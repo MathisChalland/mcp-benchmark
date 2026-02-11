@@ -26,7 +26,7 @@ export function LoginForm({ className }: { className?: string }) {
     <div className={cn("flex flex-col gap-6", className)}>
       <AsyncButton
         variant="outline"
-        className="hover:bg-primary hover:text-primary-foreground w-full cursor-pointer"
+        className="hover:bg-primary/5 hover:text-accent-foreground w-full cursor-pointer"
         onClick={signIn}
         isLoading={isLoading}
       >

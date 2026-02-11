@@ -160,7 +160,7 @@ function HeaderBar({
             variant="outline"
             onClick={onStop}
             disabled={isStopping}
-            className="ml-auto"
+            className="hover:bg-primary/5 hover:text-accent-foreground ml-auto"
           >
             {isStopping ? (
               <Loader2 className="size-4 animate-spin" />
@@ -171,7 +171,11 @@ function HeaderBar({
           </Button>
         )}
         {isFinished && (
-          <Button variant="outline" onClick={onRerun} className="ml-auto">
+          <Button
+            variant="outline"
+            onClick={onRerun}
+            className="hover:bg-primary/5 hover:text-accent-foreground ml-auto"
+          >
             <RotateCcw /> Rerun test case
           </Button>
         )}

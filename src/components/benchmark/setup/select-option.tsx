@@ -72,8 +72,10 @@ export function Select<T extends string>({
   placeholder,
   align = "start",
   side = "bottom",
+  contentClassName,
 }: Omit<SelectOptionProps<T>, "label"> & {
   className?: string;
+  contentClassName?: string;
 }) {
   return (
     <UISelect value={selectedValue} onValueChange={onChange}>
@@ -86,7 +88,7 @@ export function Select<T extends string>({
       >
         <SelectValue placeholder={placeholder ?? "Select option"} />
       </SelectTrigger>
-      <SelectContent align={align} side={side}>
+      <SelectContent align={align} side={side} className={contentClassName}>
         {groupedOptions
           ? groupedOptions.map((group, groupIndex) => (
               <React.Fragment key={group.groupLabel}>

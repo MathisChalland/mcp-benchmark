@@ -86,6 +86,7 @@ export function SetupBar({ setup, onSubmit }: SetupBarProps) {
               side="bottom"
               placeholder="Select test case"
               className="peer"
+              contentClassName="max-h-80"
             />
             <button
               className={cn(
