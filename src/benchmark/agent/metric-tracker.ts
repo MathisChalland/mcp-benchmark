@@ -70,7 +70,7 @@ export class MetricTracker {
     this.metrics.toolCalls += metrics.toolCalls ?? 0;
     this.metrics.cost = {
       cents: this.metrics.cost.cents + (metrics.cost?.cents ?? 0),
-      isEstimated: this.metrics.cost.isEstimated || metrics.cost?.isEstimated, // true if any part is estimated
+      isEstimated: this.metrics.cost.isEstimated ?? metrics.cost?.isEstimated, // true if any part is estimated
     };
   }
 
