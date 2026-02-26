@@ -88,7 +88,7 @@ async function runBenchmark(config: BenchmarkConfig): Promise<void> {
             spinner.error(`Error: ${result.error}`);
           } else {
             spinner.stop(
-              `Run ${run}: ${(result.metrics.durationMs / 1000).toFixed(2)}s | ${result.metrics.llmCalls} LLM calls | ${result.metrics.toolCalls} tool calls | ${result.metrics.totalTokens} tokens`,
+              `Run ${run}: ${(result.metrics.durationMs / 1000).toFixed(2)}s | ${result.metrics.llmCalls} LLM calls | ${result.metrics.toolCalls} tool calls | ${result.metrics.totalTokens} tokens | ${result.metrics.reasoningTokens} reasoning tokens | ${result.metrics.success ? "Successful" : "Failure"}`,
             );
           }
         }
@@ -138,17 +138,4 @@ export function writeOutputFile(output: BenchmarkResult): string {
   fs.writeFileSync(filepath, JSON.stringify(output, null, 2));
 
   return filepath;
-}
-
-export function printProgress(
-  current: number,
-  total: number,
-  agent: AgentType,
-  model: string,
-  run: number,
-): void {
-  const percentage = Math.round((current / total) * 100);
-  console.log(
-    `[${percentage}%] (${current}/${total}) | Agent: ${agent} | Model: ${model} | Run: ${run}`,
-  );
 }
