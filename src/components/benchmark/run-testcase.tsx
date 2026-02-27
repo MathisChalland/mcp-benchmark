@@ -2,7 +2,7 @@ import type { TestSetupResult } from "./setup/useTestSetup";
 import { useCallback, useRef, useState, type Ref } from "react";
 import { FlowNode } from "./agent-flow/flow-node";
 import { Agent, type AgentHandle } from "./agent";
-import { Bot, Loader2, RotateCcw, Square } from "lucide-react";
+import { ArrowLeft, Bot, Loader2, RotateCcw, Square } from "lucide-react";
 import { Button } from "../ui/button";
 import { MetricOverview } from "./metric-overview";
 import type { TaskMetrics } from "@/benchmark/agent/metric-tracker";
@@ -59,7 +59,7 @@ export function RunTestcase({ setup, onNewSetup }: Props) {
             servers...
           </div>
         ) : (
-          <div className="container mx-auto">
+          <div className="container mx-auto flex flex-col items-center">
             <div
               className="mt-3 grid w-full items-start"
               style={{
@@ -82,6 +82,16 @@ export function RunTestcase({ setup, onNewSetup }: Props) {
                 />
               ))}
             </div>
+            {isFinished && (
+              <Button
+                variant="ghost"
+                onClick={onBack}
+                className="hover:bg-primary/5 hover:text-accent-foreground text-muted-foreground mx-auto mt-8 w-fit"
+              >
+                <ArrowLeft />
+                Back to setup
+              </Button>
+            )}
           </div>
         )}
       </div>
