@@ -22,7 +22,7 @@ export function AsyncButton({
       className={className}
       variant={variant}
       size={size}
-      disabled={isLoading ?? props.disabled}
+      disabled={isLoading || props.disabled}
     >
       {isLoading ? (
         <LoaderCircle className="mx-auto animate-spin" />

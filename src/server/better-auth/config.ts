@@ -5,6 +5,8 @@ import { APIError } from "better-auth/api";
 import { env } from "@/env";
 import { db } from "@/server/db";
 import { nextCookies } from "better-auth/next-js";
+import { genericOAuth } from "better-auth/plugins";
+import { githubEnterpriseProvider } from "./github-enterprise";
 
 export const auth = betterAuth({
   database: prismaAdapter(db, {
@@ -49,7 +51,12 @@ export const auth = betterAuth({
       redirectURI: `${env.BETTER_AUTH_URL}/api/auth/callback/github`,
     },
   },
-  plugins: [nextCookies()],
+  plugins: [
+    nextCookies(),
+    genericOAuth({
+      config: [githubEnterpriseProvider],
+    }),
+  ],
 });
 
 export type Session = typeof auth.$Infer.Session;
