@@ -22,6 +22,7 @@ export function AsyncButton({
       className={className}
       variant={variant}
       size={size}
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
       disabled={isLoading || props.disabled}
     >
       {isLoading ? (
