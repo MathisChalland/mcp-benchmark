@@ -14,9 +14,13 @@ export const auth = betterAuth({
     user: {
       create: {
         before: async (user) => {
-          console.log(user);
-          const whitelisted = await db.whitelist.findUnique({
-            where: { email: user.email.toLowerCase() },
+          const email = user.email.toLowerCase();
+          const domain = email.substring(email.indexOf("@"));
+
+          const whitelisted = await db.whitelist.findFirst({
+            where: {
+              OR: [{ email }, { email: domain }],
+            },
           });
 
           if (!whitelisted) {
